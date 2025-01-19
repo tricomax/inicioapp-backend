@@ -1,19 +1,24 @@
 import { app } from "./app";
-import { Elysia } from 'elysia'
+import { Elysia } from "elysia";
+import { loadBookmarks } from "./services/cache.service";
 
 const port = 3000;
 
-await app.listen(port);
+async function startServer() {
+  // Cargar los marcadores al iniciar el servidor (antes de escuchar peticiones)
+  await loadBookmarks();
+  app.listen(port);
+  console.log(
+    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  );
+}
 
 function getProtocol(app: Elysia): string {
-  // Bun utiliza la propiedad `.secure` para indicar si una conexión es segura (HTTPS)
- if ((app.server as any)?.secure) {   
+  if ((app.server as any)?.secure) {
     return "https";
   } else {
     return "http";
   }
 }
 
-console.log(
-  `🦊 Elysia is running at ${getProtocol(app)}://${app.server?.hostname}:${app.server?.port}`
-);
+startServer();
