@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch src/server.ts",
-    "start": "bun src/server.ts"
+    "start": "bun dist/server.js",
+    "build": "bun build src/server.ts --outdir dist --minify --target bun"
   },
   "devDependencies": {
     "@types/bun": "latest",
