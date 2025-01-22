@@ -1,114 +1,185 @@
 # InicioApp Backend
 
-Este es el backend de la aplicación InicioApp, desarrollado con **Bun** y **ElysiaJS**. Proporciona una API para la gestión de marcadores y la autenticación de usuarios.
+Servicio backend desarrollado con Bun/Elysia para la gestión de marcadores y favoritos con soporte para favicon.
+
+## Stack Tecnológico
+
+- **Runtime**: [Bun](https://bun.sh/)
+- **Framework**: [Elysia](https://elysiajs.com/)
+- **Autenticación**: Firebase Admin
+- **APIs Externas**: Google Drive API
+- **Almacenamiento**: Sistema de archivos local para favicons y caché
+
+## Estructura del Proyecto
+
+```
+inicioapp-backend/
+├── src/
+│   ├── assets/                 # Recursos estáticos (iconos predeterminados)
+│   ├── controllers/            # Controladores de rutas
+│   ├── services/              # Lógica de negocio y servicios externos
+│   ├── types/                 # Definiciones de tipos TypeScript
+│   ├── utils/                 # Funciones utilitarias
+│   ├── app.ts                 # Configuración de la aplicación y rutas
+│   └── server.ts              # Punto de entrada del servidor
+├── storage/
+│   └── favicons/             # Favicons descargados y en caché
+└── package.json
+```
+
+## Instalación y Configuración
+
+1. Instalar dependencias:
+```bash
+bun install
+```
+
+2. Configurar credenciales de Firebase Admin y API de Google Drive.
+
+3. Ejecutar servidor de desarrollo:
+```bash
+bun dev
+```
+
+4. Para construcción de producción:
+```bash
+bun build
+```
+
+## Endpoints de la API
+
+### Autenticación
+
+```
+POST /auth/verify
+```
+- Verifica un token de autenticación de Firebase
+- Cuerpo: `{ token: string }`
+- Respuesta: `{ status: "success", data: { user: UserData } }` o mensaje de error
+
+### Marcadores
+
+```
+GET /bookmarks
+```
+- Obtiene todos los marcadores
+- La respuesta incluye datos del marcador con URLs de favicon
+- Los marcadores se almacenan en caché local y se sincronizan con Google Drive
+
+### Favoritos
+
+```
+GET /favorites
+```
+- Obtiene todos los marcadores favoritos
+- Respuesta: `{ status: "success", data: { favorites: Favorite[] } }`
+
+```
+POST /favorites
+```
+- Añade un nuevo favorito
+- Cuerpo: `{ url: string, title: string, faviconUrl: string }`
+- Respuesta: Mensaje de éxito o error
+
+```
+DELETE /favorites/:url
+```
+- Elimina un favorito por URL
+- La URL debe estar codificada en URI
+- Respuesta: Mensaje de éxito o error
+
+### Archivos Estáticos
+
+```
+GET /favicons/*
+```
+- Sirve archivos de favicon
+- Iconos predeterminados para marcadores y carpetas
+- Descarga y almacena automáticamente favicons de sitios web
+
+## Estructuras de Datos
+
+### Tipo Favorito
+```typescript
+interface Favorite {
+  url: string;
+  title: string;
+  faviconUrl: string;
+}
+```
+
+### Estructura de Marcador
+```typescript
+interface Bookmark {
+  type: 'bookmark' | 'folder';
+  title: string;
+  url?: string;
+  faviconUrl: string;
+  children?: Bookmark[];
+}
+```
 
 ## Características
 
-*   **Autenticación con Firebase:** Los usuarios se autentican a través de Firebase Authentication, utilizando Google como proveedor.
-*   **Obtención de marcadores:** La API permite obtener la estructura de carpetas y marcadores del usuario desde un archivo `bookmarks.xbel` almacenado en Google Drive.
-*   **Transformación de XML a JSON:** El archivo `bookmarks.xbel` (en formato XML) se transforma a un formato JSON más manejable para el frontend.
-*   **Copia local de marcadores:** El backend guarda una copia local de los marcadores en formato JSON (`bookmarks.json`) para mejorar el rendimiento y servir como respaldo en caso de fallos al acceder a Google Drive.
-*   **Manejo de errores:** El backend maneja los errores y devuelve respuestas con códigos de estado HTTP apropiados.
-*   **Soporte CORS:**  Configurado para permitir peticiones desde cualquier origen (configurable para mayor seguridad en producción).
+- **Gestión de Favicons**:
+  - Descarga y almacenamiento automático de favicons
+  - Iconos predeterminados como respaldo
+  - Limpieza automática de favicons no utilizados
 
-## Requisitos
+- **Sincronización de Marcadores**:
+  - Integración con Google Drive para almacenamiento
+  - Caché local para mejor rendimiento
+  - Sincronización automática
 
-*   [Bun](https://bun.sh/) (v1.0.0 o superior)
-*   Cuenta de Google
-*   Proyecto en Firebase con la autenticación de Google habilitada.
-*   Cuenta de servicio en Google Cloud Platform con acceso de lectura a Google Drive.
-*   Archivo `bookmarks.xbel` en Google Drive compartido con la cuenta de servicio.
+- **Manejo de Errores**:
+  - Respaldo para favicons faltantes
+  - Caché local como respaldo para operación sin conexión
+  - Respuestas de error adecuadas con códigos de estado
 
-## Configuración
+## Desarrollo
 
-1. **Clonar el repositorio:**
+El servidor se ejecuta en el puerto 3000 por defecto. Todas las respuestas siguen un formato estándar:
 
-    ```bash
-    git clone <URL del repositorio>
-    cd inicioapp-backend
-    ```
-
-2. **Instalar dependencias:**
-
-    ```bash
-    bun install
-    ```
-
-3. **Configurar variables de entorno:**
-
-    *   Crea un archivo `.env` en la raíz del proyecto.
-    *   Añade las siguientes variables de entorno:
-
-        ```
-        FIREBASE_ADMINSDK_PATH=./ruta/al/archivo/firebase-adminsdk.json
-        GOOGLE_CREDENTIALS_PATH=./ruta/al/archivo/google-credentials.json
-        ```
-
-        *   `FIREBASE_ADMINSDK_PATH`: Ruta al archivo JSON de la clave privada de Firebase Admin SDK. Puedes descargarlo desde la consola de Firebase en la configuración del proyecto -> Cuentas de servicio.
-        *   `GOOGLE_CREDENTIALS_PATH`: Ruta al archivo JSON de la clave privada de la cuenta de servicio de Google Cloud. Puedes descargarlo desde la consola de Google Cloud en IAM y administración -> Cuentas de servicio.
-
-4. **Configurar `bookmarks.json`:**
-
-    *   Crea un archivo vacío llamado `bookmarks.json` en la raíz del proyecto. Este archivo se usará para almacenar una copia local de los marcadores.
-
-5. **Compartir el archivo `bookmarks.xbel`:**
-    *   Sube tu archivo `bookmarks.xbel` a Google Drive.
-    *   Comparte el archivo con la dirección de correo electrónico de la cuenta de servicio (la que aparece en el archivo `google-credentials.json` en el campo `client_email`). Dale permisos de **Lector**.
-
-## Ejecutar el backend
-
-```bash
-bun run dev
-Use code with caution.
-Esto iniciará el servidor de desarrollo de Elysia en http://localhost:3000.
-
-Rutas
-GET /: Devuelve un mensaje de bienvenida.
-
-POST /auth/verify: Verifica el token de autenticación de Firebase enviado por el frontend.
-
-Request:
-
+```typescript
 {
-  "token": "TOKEN_DE_FIREBASE"
+  status: "success" | "error";
+  data?: any;
+  message?: string;
 }
-Use code with caution.
-Json
-Response (éxito):
+```
 
+## Integración Frontend
+
+Para integrar con el frontend:
+
+1. Asegurar que CORS está configurado correctamente (habilitado por defecto para todos los orígenes)
+2. Utilizar los endpoints de la API con la autenticación apropiada
+3. Manejar URLs de favicon usando el prefijo `/favicons/`
+4. Implementar manejo de errores adecuado para las respuestas de la API
+
+## Manejo de Errores
+
+Todos los endpoints devuelven errores en el formato:
+```typescript
 {
-  "status": "success",
-  "user": {
-    // Datos del usuario de Firebase
-  }
+  status: "error";
+  message: string;
 }
-Use code with caution.
-Json
-Response (error):
+```
 
-{
-  "status": "error",
-  "message": "Invalid token"
-}
-Use code with caution.
-Json
-GET /bookmarks: Devuelve la estructura de carpetas y marcadores en formato JSON.
+Códigos HTTP comunes:
+- 200: Éxito
+- 401: No autorizado (token inválido)
+- 500: Error del servidor
 
-Tecnologías
-Bun: Runtime de JavaScript rápido y moderno.
+## Almacenamiento de Archivos
 
-ElysiaJS: Framework web para Bun, rápido y fácil de usar.
+- Favicons se almacenan en `./storage/favicons/`
+- Marcadores se almacenan en caché en `bookmarks.json`
+- Favoritos se almacenan en `favorites.json`
 
-Firebase Admin SDK: Para la autenticación de usuarios.
+## Gestión de Caché
 
-Google Cloud Client Libraries for Node.js: Para interactuar con Google Drive.
-
-xml2js: Para parsear el archivo XML de marcadores.
-
-Notas
-Este backend está configurado para permitir peticiones desde cualquier origen (CORS). En un entorno de producción, se recomienda restringir los orígenes permitidos.
-
-La funcionalidad para gestionar favoritos aún no está implementada.
-
-Contribuciones
-Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request.
+- Los marcadores se almacenan en caché local para mejor rendimiento
+- Los favicons se descargan y almacenan con nombres basados en hash
+- Los favicons no utilizados se limpian automáticamente

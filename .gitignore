@@ -177,6 +177,9 @@ dist
 # Personales
 bookmarks.json
 favorites.json
+/storage
+/storage/favicons/*
+!storage/favicons/.gitkeep
 
 # Credenciales
 firebase-adminsdk.json

@@ -1,36 +1,83 @@
 import { promises as fs } from "fs";
 import { getBookmarksData } from "./drive.service";
 import { parseXMLToJSON } from "../utils/xmlParser";
+import { FaviconService } from "./favicon.service";
 
 const bookmarksFile = "./bookmarks.json";
-
-// Variable global para almacenar los marcadores en memoria
 export let cachedBookmarks: any = null;
 
 export async function loadBookmarks() {
   try {
-    // Intenta cargar desde el archivo local primero
-    const localBookmarks = await loadBookmarksFromLocalFile();
-    if (localBookmarks) {
-      cachedBookmarks = localBookmarks;
-      console.log("Bookmarks loaded from local file.");
-      return;
-    }
-
-    // Si no hay copia local, obtiene los datos de Google Drive
     console.log("Getting bookmarks data from drive service...");
     const xmlData = await getBookmarksData();
 
     console.log("Parsing XML to JSON...");
     const jsonData = await parseXMLToJSON(xmlData);
-    console.log("XML parsed to JSON successfully.");
+    
+    // Extraer URLs y descargar favicons
+    const urls = extractUrls(jsonData);
+    console.log(`Downloading favicons for ${urls.length} URLs...`);
+    const faviconPromises = urls.map(url => FaviconService.downloadFavicon(url));
+    const faviconResults = await Promise.all(faviconPromises);
 
-    cachedBookmarks = jsonData;
-    await saveBookmarksToLocalFile(jsonData);
+    // Añadir rutas de favicon a los marcadores
+    const bookmarksWithFavicons = addFaviconUrls(jsonData, urls, faviconResults);
+    
+    // Guardar en caché y archivo
+    cachedBookmarks = bookmarksWithFavicons;
+    await saveBookmarksToLocalFile(bookmarksWithFavicons);
+    
+    // Limpiar favicons no utilizados
+    await FaviconService.cleanup(urls);
+    
+    return bookmarksWithFavicons;
   } catch (error) {
     console.error("Error loading bookmarks:", error);
-    throw error;
+    // Intentar cargar desde el archivo local como respaldo
+    return loadBookmarksFromLocalFile();
   }
+}
+
+function extractUrls(bookmarks: any[]): string[] {
+  const urls: string[] = [];
+  const traverse = (items: any[]) => {
+    for (const item of items) {
+      if (item.type === 'bookmark' && item.url) {
+        urls.push(item.url);
+      }
+      if (item.children) {
+        traverse(item.children);
+      }
+    }
+  };
+  traverse(bookmarks);
+  return urls;
+}
+
+function addFaviconUrls(bookmarks: any[], urls: string[], faviconFiles: string[]): any[] {
+  const urlToFavicon = new Map(
+    urls.map((url, index) => [url, faviconFiles[index]])
+  );
+
+  const addFavicon = (items: any[]): any[] => {
+    return items.map(item => {
+      if (item.type === 'bookmark' && item.url) {
+        return {
+          ...item,
+          faviconUrl: `/favicons/${urlToFavicon.get(item.url)}`
+        };
+      }
+      if (item.type === 'folder') {
+        return {
+          ...item,
+          faviconUrl: `/favicons/folder-icon.png`,
+          children: item.children ? addFavicon(item.children) : []
+        };
+      }
+      return item;
+    });
+  };
+  return addFavicon(bookmarks);
 }
 
 async function saveBookmarksToLocalFile(bookmarks: any) {

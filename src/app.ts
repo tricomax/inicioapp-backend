@@ -1,12 +1,20 @@
 import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
+import { staticPlugin } from '@elysiajs/static';
 import { verifyToken } from "./services/auth.service";
 import { getBookmarks } from "./controllers/bookmarks.controller";
+import { getFavorites, addFavorite, removeFavorite } from "./controllers/favorites.controller";
 
 // ---------- Esquemas de validación ----------
 
 const VerifyTokenSchema = t.Object({
   token: t.String(),
+});
+
+const FavoriteSchema = t.Object({
+  url: t.String(),
+  title: t.String(),
+  faviconUrl: t.String(),
 });
 
 // ---------- Funciones auxiliares para el manejo de errores ----------
@@ -25,6 +33,10 @@ const handleError = (message: string, status: number = 500) => ({
 
 export const app = new Elysia()
   .use(cors()) // Habilita CORS para todos los orígenes
+  .use(staticPlugin({
+    prefix: '/favicons',
+    assets: './storage/favicons'
+  }))
   .get("/", () => handleSuccess({ message: "Welcome to InicioApp Backend!" }))
   .group("/auth", (app) =>
     app.post(
@@ -55,4 +67,19 @@ export const app = new Elysia()
         return handleError("Failed to fetch bookmarks", 500);
       }
     })
+  )
+  .group("/favorites", (app) =>
+    app
+      .get("/", async () => {
+        const favorites = await getFavorites();
+        return handleSuccess({ favorites });
+      })
+      .post("/", async ({ body }) => {
+        await addFavorite(body);
+        return handleSuccess({ message: "Favorite added" });
+      }, { body: FavoriteSchema })
+      .delete("/:url", async ({ params }) => {
+        await removeFavorite(decodeURIComponent(params.url));
+        return handleSuccess({ message: "Favorite removed" });
+      })
   );
