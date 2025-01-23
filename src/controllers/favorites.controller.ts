@@ -38,6 +38,14 @@ export async function removeFavorite(url: string): Promise<void> {
   await saveFavorites();
 }
 
+export async function updateFaviconUrl(url: string, faviconUrl: string): Promise<void> {
+  const favorite = favorites.find(f => f.url === url);
+  if (favorite) {
+    favorite.faviconUrl = faviconUrl;
+    await saveFavorites();
+  }
+}
+
 async function saveFavorites(): Promise<void> {
   try {
     await fs.writeFile(favoritesFile, JSON.stringify(favorites, null, 2));

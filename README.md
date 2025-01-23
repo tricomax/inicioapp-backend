@@ -62,9 +62,10 @@ POST /auth/verify
 ```
 GET /bookmarks
 ```
-- Obtiene todos los marcadores
+- Obtiene todos los marcadores desde la caché local
 - La respuesta incluye datos del marcador con URLs de favicon
 - Los marcadores se almacenan en caché local y se sincronizan con Google Drive
+- Para recargar desde XBEL, usar primero el endpoint `/xbel-reload`
 
 ### Favoritos
 
@@ -88,6 +89,47 @@ DELETE /favorites/:url
 - La URL debe estar codificada en URI
 - Respuesta: Mensaje de éxito o error
 
+### Favicons
+
+```
+POST /favicons
+```
+- Guarda o actualiza un favicon personalizado para una URL específica
+- Cuerpo: `multipart/form-data` con:
+  - `url`: URL del marcador
+  - `favicon`: Archivo de imagen
+- Actualiza automáticamente la URL del favicon en favoritos si existe
+- Respuesta: `{ status: "success", message: "Favicon saved successfully" }` o mensaje de error
+- Ejemplo de uso en frontend:
+```javascript
+async function saveCustomFavicon(url, iconFile) {
+  const formData = new FormData();
+  formData.append('url', url);
+  formData.append('favicon', iconFile);
+
+  const response = await fetch('/favicons', {
+    method: 'POST',
+    body: formData
+  });
+
+  if (response.ok) {
+    // Recargar marcadores para obtener el nuevo favicon
+    await loadBookmarks();
+  } else {
+    console.error('Error al guardar el favicon');
+  }
+}
+
+// Ejemplo de uso con un input file
+const input = document.querySelector('input[type="file"]');
+input.onchange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    saveCustomFavicon('https://example.com', file);
+  }
+};
+```
+
 ### Marcadores Obsoletos
 
 ```
@@ -97,16 +139,18 @@ GET /obsolete-bookmarks
 - Estos marcadores pueden requerir revisión manual en el navegador web
 - Respuesta: `{ status: "success", data: { obsoleteBookmarks: string[] } }`
 
-### Actualización del Servidor
+### Recarga de XBEL
 
 ```
-POST /update
+POST /xbel-reload
 ```
-- Actualiza la caché de marcadores desde el archivo XBEL
-- Respuesta: `{ status: "success", data: { message: "Cache updated successfully" } }` o mensaje de error
+- Recarga y actualiza la caché de marcadores desde el archivo XBEL
+- Procesa el archivo y actualiza la caché local
+- Respuesta: `{ status: "success", data: { message: "XBEL reloaded successfully" } }` o mensaje de error
 - Esta operación puede tardar varios minutos dependiendo del número de marcadores
 - La conexión se mantiene abierta durante todo el proceso (no hay timeout)
-- Uso recomendado antes de obtener los marcadores si se requiere una actualización manual
+- Uso recomendado cuando hay cambios en los marcadores del navegador
+- Después de la recarga, usar GET /bookmarks para obtener los datos actualizados
 
 ### Archivos Estáticos
 
@@ -115,7 +159,8 @@ GET /favicons/*
 ```
 - Sirve archivos de favicon
 - Iconos predeterminados para marcadores y carpetas
-- Descarga y almacena automáticamente favicons de sitios web
+- Favicons descargados automáticamente
+- Favicons personalizados
 
 ## Estructuras de Datos
 
@@ -142,13 +187,18 @@ interface Bookmark {
 ## Características
 
 - **Gestión de Favicons**:
-  - Descarga y almacenamiento automático de favicons
+  - Descarga automática de favicons para URLs sin icono personalizado
+  - Soporte para favicons personalizados con prioridad sobre la descarga automática
+  - Actualización automática de favoritos al modificar favicons
+  - Almacenamiento basado en hash de URL para consistencia
+  - Actualización automática al reemplazar favicons existentes
   - Iconos predeterminados como respaldo
-  - Limpieza automática de favicons no utilizados
+  - Gestión eficiente del almacenamiento
 
 - **Sincronización de Marcadores**:
   - Integración con Google Drive para almacenamiento
   - Caché local para mejor rendimiento
+  - Actualización manual vía endpoint /xbel-reload
   - Sincronización automática
 
 - **Manejo de Errores**:
@@ -170,15 +220,6 @@ El servidor se ejecuta en el puerto 3000 por defecto. Todas las respuestas sigue
 }
 ```
 
-## Integración Frontend
-
-Para integrar con el frontend:
-
-1. Asegurar que CORS está configurado correctamente (habilitado por defecto para todos los orígenes)
-2. Utilizar los endpoints de la API con la autenticación apropiada
-3. Manejar URLs de favicon usando el prefijo `/favicons/`
-4. Implementar manejo de errores adecuado para las respuestas de la API
-
 ## Manejo de Errores
 
 Todos los endpoints devuelven errores en el formato:
@@ -191,17 +232,35 @@ Todos los endpoints devuelven errores en el formato:
 
 Códigos HTTP comunes:
 - 200: Éxito
+- 400: Error de solicitud (ej: falta archivo en la subida)
 - 401: No autorizado (token inválido)
 - 500: Error del servidor
 
 ## Almacenamiento de Archivos
 
-- Favicons se almacenan en `./storage/favicons/`
+- Los favicons se almacenan en `./storage/favicons/[hash].ico`
+- El registro de favicons personalizados se mantiene en `./storage/favicons/custom_icons.json`
 - Marcadores se almacenan en caché en `bookmarks.json`
 - Favoritos se almacenan en `favorites.json`
+
+## Flujo de Sincronización
+
+1. **Carga Inicial**:
+   - GET /bookmarks carga datos desde la caché local
+
+2. **Actualización Manual**:
+   - POST /xbel-reload procesa el archivo XBEL y actualiza la caché
+   - GET /bookmarks obtiene los datos actualizados
+
+3. **Gestión de Favicons**:
+   - POST /favicons sube un favicon personalizado
+   - El sistema actualiza automáticamente referencias en favoritos
+   - GET /bookmarks refleja los cambios en los favicons
 
 ## Gestión de Caché
 
 - Los marcadores se almacenan en caché local para mejor rendimiento
-- Los favicons se descargan y almacenan con nombres basados en hash
-- Los favicons no utilizados se limpian automáticamente
+- Los favicons se almacenan con nombres basados en hash de URL
+- Los favicons personalizados tienen prioridad
+- La limpieza automática respeta los favicons personalizados
+- Uso de /xbel-reload para actualización manual de la caché

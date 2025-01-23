@@ -3,9 +3,10 @@ import { cors } from "@elysiajs/cors";
 import { staticPlugin } from '@elysiajs/static';
 import { verifyToken } from "./services/auth.service";
 import { getBookmarks } from "./controllers/bookmarks.controller";
-import { getFavorites, addFavorite, removeFavorite } from "./controllers/favorites.controller";
+import { getFavorites, addFavorite, removeFavorite, updateFaviconUrl } from "./controllers/favorites.controller";
 import { getObsoleteBookmarks } from "./controllers/obsoleteBookmarks.controller";
 import { updateCache } from "./controllers/update.controller";
+import { FaviconService } from "./services/favicon.service";
 
 // ---------- Esquemas de validación ----------
 
@@ -17,6 +18,11 @@ const FavoriteSchema = t.Object({
   url: t.String(),
   title: t.String(),
   faviconUrl: t.String(),
+});
+
+const FaviconUploadSchema = t.Object({
+  url: t.String(),
+  favicon: t.File()
 });
 
 // ---------- Funciones auxiliares para el manejo de errores ----------
@@ -89,16 +95,35 @@ export const app = new Elysia({
         return handleSuccess({ message: "Favorite removed" });
       })
   )
+  .post("/favicons", async ({ body, set }) => {
+    try {
+      if (!body.favicon || !body.url) {
+        set.status = 400;
+        return handleError("Missing favicon or URL", 400);
+      }
+
+      const fileName = await FaviconService.saveCustomFavicon(body.url, body.favicon);
+      
+      // Actualizar favicon en favoritos si existe
+      await updateFaviconUrl(body.url, `/favicons/${fileName}`);
+      
+      return handleSuccess({ message: "Favicon saved successfully" });
+    } catch (error) {
+      console.error("Error saving favicon:", error);
+      set.status = 500;
+      return handleError("Failed to save favicon");
+    }
+  }, { body: FaviconUploadSchema })
   .get("/obsolete-bookmarks", async () => {
     const obsoleteBookmarks = await getObsoleteBookmarks();
     return handleSuccess({ obsoleteBookmarks });
   })
-  .post("/update", async () => {
+  .post("/xbel-reload", async () => {
     try {
       const result = await updateCache();
       return handleSuccess(result);
     } catch (error) {
-      console.error("Error updating cache:", error);
-      return handleError("Failed to update cache");
+      console.error("Error reloading XBEL:", error);
+      return handleError("Failed to reload XBEL");
     }
   });
