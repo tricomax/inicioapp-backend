@@ -4,6 +4,8 @@ import { staticPlugin } from '@elysiajs/static';
 import { verifyToken } from "./services/auth.service";
 import { getBookmarks } from "./controllers/bookmarks.controller";
 import { getFavorites, addFavorite, removeFavorite } from "./controllers/favorites.controller";
+import { getObsoleteBookmarks } from "./controllers/obsoleteBookmarks.controller";
+import { updateCache } from "./controllers/update.controller";
 
 // ---------- Esquemas de validación ----------
 
@@ -31,7 +33,11 @@ const handleError = (message: string, status: number = 500) => ({
 
 // ---------- Aplicación Elysia ----------
 
-export const app = new Elysia()
+export const app = new Elysia({
+  serve: {
+    idleTimeout: 0 // Deshabilita el timeout de conexiones inactivas
+  }
+})
   .use(cors()) // Habilita CORS para todos los orígenes
   .use(staticPlugin({
     prefix: '/favicons',
@@ -82,4 +88,17 @@ export const app = new Elysia()
         await removeFavorite(decodeURIComponent(params.url));
         return handleSuccess({ message: "Favorite removed" });
       })
-  );
+  )
+  .get("/obsolete-bookmarks", async () => {
+    const obsoleteBookmarks = await getObsoleteBookmarks();
+    return handleSuccess({ obsoleteBookmarks });
+  })
+  .post("/update", async () => {
+    try {
+      const result = await updateCache();
+      return handleSuccess(result);
+    } catch (error) {
+      console.error("Error updating cache:", error);
+      return handleError("Failed to update cache");
+    }
+  });

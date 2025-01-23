@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { addObsoleteBookmark } from '../controllers/obsoleteBookmarks.controller';
 
 const FAVICON_DIR = './storage/favicons';
 const DEFAULT_BOOKMARK_ICON = 'default-icon.png';
@@ -59,6 +60,11 @@ export class FaviconService {
       }
     } catch (error) {
       console.error(`Error downloading favicon for ${url}:`, error);
+      // Track obsolete favicon if it's a connection error
+      // Solo rastrear marcadores con el error específico "Unable to connect"
+      if (error instanceof Error && error.message === 'Unable to connect. Is the computer able to access the url?') {
+        await addObsoleteBookmark({ url });
+      }
       return DEFAULT_BOOKMARK_ICON;
     }
   }

@@ -7,10 +7,9 @@ import { initFavorites } from "./controllers/favorites.controller";
 const port = 3000;
 
 async function startServer() {
-  // Cargar los marcadores al iniciar el servidor (antes de escuchar peticiones)
+  // Inicializar servicios requeridos
   await FaviconService.init();
-  await initFavorites(); // Inicializar favoritos antes de cargar marcadores
-  await loadBookmarks();
+  await initFavorites();
   app.listen(port);
   console.log(
     `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

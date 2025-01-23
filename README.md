@@ -1,6 +1,6 @@
 # InicioApp Backend
 
-Servicio backend desarrollado con Bun/Elysia para la gestión de marcadores y favoritos con soporte para favicon.
+Servicio backend desarrollado con Bun/Elysia vinculado al frontend https://github.com/tricomax/inicioApp-frontend
 
 ## Stack Tecnológico
 
@@ -88,6 +88,26 @@ DELETE /favorites/:url
 - La URL debe estar codificada en URI
 - Respuesta: Mensaje de éxito o error
 
+### Marcadores Obsoletos
+
+```
+GET /obsolete-bookmarks
+```
+- Obtiene la lista de marcadores que presentan el error "Unable to connect"
+- Estos marcadores pueden requerir revisión manual en el navegador web
+- Respuesta: `{ status: "success", data: { obsoleteBookmarks: string[] } }`
+
+### Actualización del Servidor
+
+```
+POST /update
+```
+- Actualiza la caché de marcadores desde el archivo XBEL
+- Respuesta: `{ status: "success", data: { message: "Cache updated successfully" } }` o mensaje de error
+- Esta operación puede tardar varios minutos dependiendo del número de marcadores
+- La conexión se mantiene abierta durante todo el proceso (no hay timeout)
+- Uso recomendado antes de obtener los marcadores si se requiere una actualización manual
+
 ### Archivos Estáticos
 
 ```
@@ -132,9 +152,11 @@ interface Bookmark {
   - Sincronización automática
 
 - **Manejo de Errores**:
-  - Respaldo para favicons faltantes
-  - Caché local como respaldo para operación sin conexión
-  - Respuestas de error adecuadas con códigos de estado
+   - Respaldo para favicons faltantes
+   - Caché local como respaldo para operación sin conexión
+   - Respuestas de error adecuadas con códigos de estado
+   - Identificación y seguimiento de marcadores inaccesibles
+   - Lista de marcadores con error "Unable to connect" para revisión manual
 
 ## Desarrollo
 
