@@ -18,10 +18,10 @@ interface BookmarkMap {
 export async function reloadFromXBEL() {
   try {
     console.time('xbel-reload');
-    console.log("Getting bookmarks data from drive service...");
+    console.log("Obteniendo datos de marcadores...");
     const xmlData = await getBookmarksData();
 
-    console.log("Parsing XML to JSON...");
+    console.log("Parseando XML a JSON...");
     const jsonData = await parseXMLToJSON(xmlData);
     
     // Get existing bookmarks for comparison
@@ -31,7 +31,7 @@ export async function reloadFromXBEL() {
     // Extract URLs and identify which ones need icon updates
     const { urlsToProcess, unchangedUrls } = await identifyUrls(jsonData, existingBookmarksMap);
     
-    console.log(`Found ${urlsToProcess.length} URLs to process and ${unchangedUrls.length} unchanged URLs`);
+    console.log(`Marcadores a procesar: ${urlsToProcess.length}, sin cambios: ${unchangedUrls.length}`);
     
     // Process icons
     const locationResults = new Map<string, string>();
@@ -45,43 +45,55 @@ export async function reloadFromXBEL() {
     
     // Process URLs in parallel
     if (urlsToProcess.length > 0) {
-      console.log("Downloading icons in parallel...");
-      const downloadPromises = urlsToProcess.map(async (url) => {
-        try {
-          const response = await downloadIcon(url);
-          if (response && response.ok) {
-            const location = await FaviconService.saveIcon(url, response);
-            if (location !== DEFAULT_LOCATION) {
-              locationResults.set(url, location);
-            }
-          }
-        } catch (error) {
-          console.error(`Error downloading icon for ${url}:`, error);
-        }
-      });
+      // Reset favicon stats
+      FaviconService.resetStats();
 
-      // Wait for all downloads to complete
-      await Promise.all(downloadPromises);
+      const chunks: string[][] = [];
+      for (let i = 0; i < urlsToProcess.length; i += BATCH_SIZE) {
+        chunks.push(urlsToProcess.slice(i, i + BATCH_SIZE));
+      }
+
+      for (const [index, chunk] of chunks.entries()) {
+        console.log(`Procesando lote ${index + 1}/${chunks.length} (${chunk.length} URLs)`);
+        const downloadPromises = chunk.map(async (url) => {
+          try {
+            const response = await FaviconService.downloadFavicon(url);
+            if (response) {
+              const location = await FaviconService.saveIcon(url, response);
+              if (location !== DEFAULT_LOCATION) {
+                locationResults.set(url, location);
+              }
+            }
+          } catch (error) {
+            console.error(`Error descargando favicon para ${url}:`, error);
+          }
+        });
+
+        await Promise.all(downloadPromises);
+      }
     }
 
     // Add locations to bookmarks
-    console.log("Updating bookmark data with icon locations...");
     const bookmarksWithLocations = addLocations(jsonData, locationResults, existingBookmarksMap);
     
     // Save to cache
-    console.log("Saving updated bookmarks to cache...");
     await saveBookmarksToCache(bookmarksWithLocations);
     
     // Clean up unused icons
     const allUrls = [...urlsToProcess, ...unchangedUrls];
     await FaviconService.cleanup(allUrls);
     
-    // Calculate success rate
-    const successfulDownloads = Array.from(locationResults.values()).filter(
-      location => location !== DEFAULT_LOCATION
-    ).length;
-    
+    // Get final statistics
+    const stats = FaviconService.getStats();
     console.timeEnd('xbel-reload');
+    
+    console.log("\n=== Resumen de Favicons ===");
+    console.log(`Total intentados: ${stats.attempted}`);
+    console.log(`Total encontrados: ${stats.succeeded}`);
+    console.log(`└─ Por favicon.ico: ${stats.icoSucceeded}`);
+    console.log(`└─ Por tag HTML: ${stats.htmlSucceeded}`);
+    console.log(`Tasa de éxito: ${(stats.succeeded / stats.attempted * 100).toFixed(2)}%`);
+    console.log("========================\n");
     
     return { 
       message: "XBEL reload completed successfully",
@@ -89,8 +101,12 @@ export async function reloadFromXBEL() {
         totalUrls: allUrls.length,
         processed: urlsToProcess.length,
         unchanged: unchangedUrls.length,
-        successfulDownloads,
-        failedDownloads: urlsToProcess.length - successfulDownloads
+        iconStats: {
+          attempted: stats.attempted,
+          succeeded: stats.succeeded,
+          icoSucceeded: stats.icoSucceeded,
+          htmlSucceeded: stats.htmlSucceeded
+        }
       }
     };
   } catch (error) {
@@ -149,42 +165,6 @@ async function identifyUrls(newBookmarks: any[], existingMap: BookmarkMap): Prom
   
   traverse(newBookmarks);
   return { urlsToProcess, unchangedUrls };
-}
-
-async function downloadIcon(url: string): Promise<Response | null> {
-  try {
-    const domain = new URL(url).origin;
-    
-    // Intentar favicon.ico primero
-    try {
-      const response = await fetch(`${domain}/favicon.ico`);
-      if (response.ok && response.headers.get('content-length') !== '0') {
-        return response;
-      }
-    } catch {}
-
-    // Si no hay favicon.ico, buscar en el HTML
-    try {
-      const pageResponse = await fetch(domain);
-      if (!pageResponse.ok) return null;
-
-      const html = await pageResponse.text();
-      const iconMatch = html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i);
-      
-      if (iconMatch && iconMatch[1]) {
-        const iconUrl = new URL(iconMatch[1], domain).href;
-        const iconResponse = await fetch(iconUrl);
-        if (iconResponse.ok && iconResponse.headers.get('content-length') !== '0') {
-          return iconResponse;
-        }
-      }
-    } catch {}
-
-    return null;
-  } catch (error: unknown) {
-    console.error(`Failed to download icon for ${url}:`, error);
-    return null;
-  }
 }
 
 function addLocations(

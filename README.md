@@ -6,7 +6,7 @@ Backend para la aplicación InicioApp que gestiona marcadores y sus favicons.
 
 - Carga y parseo de archivos XBEL de Chrome
 - Caché de marcadores en formato JSON
-- Gestión de favicons con preservación de formatos
+- Sistema simple y rápido de favicons
 - Sistema de favoritos
 - API RESTful con Elysia y Bun
 
@@ -22,52 +22,39 @@ Obtiene todos los marcadores desde el caché. Los marcadores incluyen:
 ### POST /xbel-reload
 Recarga los marcadores desde el archivo XBEL de Chrome:
 - Parsea el archivo XBEL
-- Descarga los favicons faltantes
-- Actualiza el caché
-- Mantiene los favicons personalizados
+- Intenta descargar favicons faltantes
+- Mantiene favicons existentes y personalizados
+- Proporciona estadísticas básicas
 
-### POST /favicons
-Actualiza el favicon de un marcador:
-- Acepta cualquier formato de imagen (ico, png, jpg, svg, webp)
-- Preserva el formato original del archivo
-- Actualiza automáticamente las referencias en bookmarks.json
-- Mantiene consistencia entre marcadores y favoritos
-
-#### Ejemplo de Implementación Frontend
-
-```javascript
-// Función para actualizar el icono de un bookmark
-async function updateBookmarkIcon(url, iconFile) {
-  const formData = new FormData();
-  formData.append('url', url);
-  formData.append('favicon', iconFile);
-
-  const response = await fetch('http://localhost:3000/favicons', {
-    method: 'POST',
-    body: formData
-  });
-
-  const result = await response.json();
-  // result.data.location contiene la nueva ruta del icono
-  return result;
-}
-
-// Ejemplo de uso
-const fileInput = document.querySelector('input[type="file"]');
-fileInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  const bookmarkUrl = 'https://chat.qwenlm.ai/';
-  
-  try {
-    const result = await updateBookmarkIcon(bookmarkUrl, file);
-    console.log('Nuevo icono guardado en:', result.data.location);
-  } catch (error) {
-    console.error('Error al actualizar el icono:', error);
+Ejemplo de respuesta:
+```json
+{
+  "status": "success",
+  "data": {
+    "message": "XBEL reload completed successfully",
+    "stats": {
+      "totalUrls": 150,
+      "processed": 50,
+      "unchanged": 100,
+      "iconsAttempted": 50,
+      "iconsFound": 30
+    }
   }
-});
+}
 ```
 
-Respuesta exitosa:
+### POST /favicons
+Actualiza el favicon de un marcador manualmente.
+
+#### Petición
+```javascript
+// Usando FormData
+const formData = new FormData();
+formData.append('url', 'https://chat.qwenlm.ai/');
+formData.append('favicon', iconFile); // File object
+```
+
+#### Respuesta Exitosa
 ```json
 {
   "status": "success",
@@ -77,14 +64,6 @@ Respuesta exitosa:
   }
 }
 ```
-
-El proceso:
-1. Frontend envía la URL del bookmark y el archivo de icono
-2. Backend genera un hash de la URL
-3. Guarda el archivo manteniendo su extensión original
-4. Actualiza la referencia en bookmarks.json
-5. Actualiza la referencia en favoritos (si existe)
-6. Devuelve la nueva location del icono
 
 ### Favoritos
 
@@ -127,13 +106,19 @@ Elimina un favorito
 
 - `services/`:
   - `favicon.service.ts`: Gestión de iconos
-    - Descarga automática
+    - Descarga automática de favicon.ico
     - Subida manual
     - Preservación de formatos
   - `cache.service.ts`: Gestión del caché
   - `drive.service.ts`: Interacción con archivos XBEL
 
-## Manejo de Iconos
+## Sistema de Favicons
+
+### Método de Descarga Automática
+
+- Intento simple de `/favicon.ico`
+- Sin búsqueda en HTML para mayor velocidad
+- Los favicons no encontrados se pueden agregar manualmente
 
 ### Formatos Soportados
 
@@ -143,29 +128,13 @@ Elimina un favorito
 - SVG
 - WebP
 
-### Funcionalidad
+### Estadísticas Simples
 
-- **Descarga Automática**:
-  - Intenta favicon.ico primero
-  - Busca en HTML si no encuentra favicon.ico
-  - Detecta formato desde content-type
-
-- **Subida Manual**:
-  - Preserva el formato original del archivo
-  - Genera nombre basado en hash de URL
-  - Mantiene extensión original
-
-- **Referencias**:
-  - Usa location en lugar de faviconUrl
-  - Formato: `/favicons/[hash].[ext]`
-  - Consistente en toda la aplicación
-
-### Actualización de Referencias
-
-1. Se guarda el archivo con su formato original
-2. Se actualiza location en bookmarks.json
-3. Se actualiza location en favoritos (si existe)
-4. Se confirma el éxito de la operación
+El sistema mantiene estadísticas básicas:
+- Total de URLs procesadas
+- Iconos intentados descargar
+- Iconos encontrados
+- Tasa de éxito
 
 ## Desarrollo
 
