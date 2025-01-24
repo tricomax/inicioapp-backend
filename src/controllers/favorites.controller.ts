@@ -38,11 +38,15 @@ export async function removeFavorite(url: string): Promise<void> {
   await saveFavorites();
 }
 
-export async function updateFaviconUrl(url: string, faviconUrl: string): Promise<void> {
+export async function updateFavoriteLocation(url: string, location: string): Promise<void> {
+  console.log(`[Favorites] Actualizando location para URL ${url} a: ${location}`);
   const favorite = favorites.find(f => f.url === url);
   if (favorite) {
-    favorite.faviconUrl = faviconUrl;
+    favorite.location = location;
     await saveFavorites();
+    console.log(`[Favorites] Location actualizada correctamente`);
+  } else {
+    console.log(`[Favorites] No se encontró favorito para la URL ${url}`);
   }
 }
 

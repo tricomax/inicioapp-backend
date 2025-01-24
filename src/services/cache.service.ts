@@ -1,122 +1,55 @@
 import { promises as fs } from "fs";
-import { getBookmarksData } from "./drive.service";
-import { parseXMLToJSON } from "../utils/xmlParser";
-import { FaviconService } from "./favicon.service";
 
-const bookmarksFile = "./bookmarks.json";
+const BOOKMARKS_FILE = "./bookmarks.json";
 export let cachedBookmarks: any = null;
 
-export async function loadBookmarks() {
+export async function initializeCache() {
   try {
-    console.log("Getting bookmarks data from drive service...");
-    const xmlData = await getBookmarksData();
-
-    console.log("Parsing XML to JSON...");
-    const jsonData = await parseXMLToJSON(xmlData);
-    
-    // Extraer URLs y descargar favicons
-    const urls = extractUrls(jsonData);
-    console.log(`Downloading favicons for ${urls.length} URLs...`);
-    const faviconPromises = urls.map(url => FaviconService.downloadFavicon(url));
-    const faviconResults = await Promise.all(faviconPromises);
-
-    // Añadir rutas de favicon a los marcadores
-    const bookmarksWithFavicons = addFaviconUrls(jsonData, urls, faviconResults);
-    
-    // Guardar en caché y archivo
-    cachedBookmarks = bookmarksWithFavicons;
-    await saveBookmarksToLocalFile(bookmarksWithFavicons);
-    
-    // Limpiar favicons no utilizados
-    await FaviconService.cleanup(urls);
-    
-    return bookmarksWithFavicons;
-  } catch (error) {
-    console.error("Error loading bookmarks:", error);
-    // Intentar cargar desde el archivo local como respaldo
-    return loadBookmarksFromLocalFile();
-  }
-}
-
-function extractUrls(bookmarks: any[]): string[] {
-  const urls: string[] = [];
-  const traverse = (items: any[]) => {
-    for (const item of items) {
-      if (item.type === 'bookmark' && item.url) {
-        urls.push(item.url);
-      }
-      if (item.children) {
-        traverse(item.children);
-      }
+    await fs.access(BOOKMARKS_FILE);
+    console.log("Bookmarks cache file exists");
+    return loadBookmarksFromCache();
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      console.log("Bookmarks cache file does not exist");
+      return null;
     }
-  };
-  traverse(bookmarks);
-  return urls;
-}
-
-function addFaviconUrls(bookmarks: any[], urls: string[], faviconFiles: string[]): any[] {
-  const urlToFavicon = new Map(
-    urls.map((url, index) => [url, faviconFiles[index]])
-  );
-
-  const addFavicon = (items: any[]): any[] => {
-    return items.map(item => {
-      if (item.type === 'bookmark' && item.url) {
-        return {
-          ...item,
-          faviconUrl: `/favicons/${urlToFavicon.get(item.url)}`
-        };
-      }
-      if (item.type === 'folder') {
-        return {
-          ...item,
-          faviconUrl: `/favicons/folder-icon.png`,
-          children: item.children ? addFavicon(item.children) : []
-        };
-      }
-      return item;
-    });
-  };
-  return addFavicon(bookmarks);
-}
-
-async function saveBookmarksToLocalFile(bookmarks: any) {
-  try {
-    await fs.writeFile(bookmarksFile, JSON.stringify(bookmarks, null, 2));
-    console.log("Bookmarks saved to local file successfully.");
-  } catch (error) {
-    console.error("Error saving bookmarks to local file:", error);
     throw error;
   }
 }
 
-async function loadBookmarksFromLocalFile() {
+export async function saveBookmarksToCache(bookmarks: any) {
   try {
-    const data = await fs.readFile(bookmarksFile, "utf-8");
-    const bookmarks = JSON.parse(data);
-    console.log("Bookmarks loaded from local file successfully.");
-    return bookmarks;
+    await fs.writeFile(BOOKMARKS_FILE, JSON.stringify(bookmarks, null, 2));
+    cachedBookmarks = bookmarks;
+    console.log("Bookmarks saved to cache successfully");
   } catch (error) {
-    console.error("Error loading bookmarks from local file:", error);
+    console.error("Error saving bookmarks to cache:", error);
+    throw error;
+  }
+}
+
+export async function loadBookmarksFromCache() {
+  try {
+    const data = await fs.readFile(BOOKMARKS_FILE, "utf-8");
+    cachedBookmarks = JSON.parse(data);
+    console.log("Bookmarks loaded from cache successfully");
+    return cachedBookmarks;
+  } catch (error) {
+    console.error("Error loading bookmarks from cache:", error);
     return null;
   }
 }
 
-async function createBookmarksFileIfNotExists() {
+export async function isCacheEmpty() {
   try {
-    await fs.access(bookmarksFile);
-    console.log("Bookmarks file exists.");
-  } catch (error: any) {
-    if (error.code === "ENOENT") {
-      console.log("Bookmarks file does not exist. Creating...");
-      await saveBookmarksToLocalFile([]);
-      console.log("Bookmarks file created.");
-    } else {
-      console.error("Error accessing bookmarks file:", error);
-      throw error;
-    }
+    await fs.access(BOOKMARKS_FILE);
+    const data = await fs.readFile(BOOKMARKS_FILE, "utf-8");
+    const bookmarks = JSON.parse(data);
+    return !bookmarks || bookmarks.length === 0;
+  } catch {
+    return true;
   }
 }
 
-// Asegúrate de que el archivo exista al iniciar
-createBookmarksFileIfNotExists();
+// Initialize cache on service start
+initializeCache();

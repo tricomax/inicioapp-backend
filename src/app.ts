@@ -3,10 +3,11 @@ import { cors } from "@elysiajs/cors";
 import { staticPlugin } from '@elysiajs/static';
 import { verifyToken } from "./services/auth.service";
 import { getBookmarks } from "./controllers/bookmarks.controller";
-import { getFavorites, addFavorite, removeFavorite, updateFaviconUrl } from "./controllers/favorites.controller";
+import { getFavorites, addFavorite, removeFavorite, updateFavoriteLocation } from "./controllers/favorites.controller";
 import { getObsoleteBookmarks } from "./controllers/obsoleteBookmarks.controller";
-import { updateCache } from "./controllers/update.controller";
+import { handleXBELReload } from "./controllers/xbel-reload.controller";
 import { FaviconService } from "./services/favicon.service";
+import { loadBookmarksFromCache, saveBookmarksToCache } from "./services/cache.service";
 
 // ---------- Esquemas de validación ----------
 
@@ -17,7 +18,7 @@ const VerifyTokenSchema = t.Object({
 const FavoriteSchema = t.Object({
   url: t.String(),
   title: t.String(),
-  faviconUrl: t.String(),
+  location: t.String(),
 });
 
 const FaviconUploadSchema = t.Object({
@@ -37,14 +38,34 @@ const handleError = (message: string, status: number = 500) => ({
   message,
 });
 
+// ---------- Funciones auxiliares ----------
+
+async function updateBookmarkLocation(bookmarks: any[], url: string, location: string): Promise<boolean> {
+  let updated = false;
+  for (const item of bookmarks) {
+    if (item.type === 'bookmark' && item.url === url) {
+      console.log(`[Bookmark] Actualizando location para ${url}:
+        Anterior: ${item.location}
+        Nueva: ${location}`);
+      item.location = location;
+      updated = true;
+    }
+    if (item.children) {
+      const childUpdated = await updateBookmarkLocation(item.children, url, location);
+      updated = updated || childUpdated;
+    }
+  }
+  return updated;
+}
+
 // ---------- Aplicación Elysia ----------
 
 export const app = new Elysia({
   serve: {
-    idleTimeout: 0 // Deshabilita el timeout de conexiones inactivas
+    idleTimeout: 0
   }
 })
-  .use(cors()) // Habilita CORS para todos los orígenes
+  .use(cors())
   .use(staticPlugin({
     prefix: '/favicons',
     assets: './storage/favicons'
@@ -71,7 +92,6 @@ export const app = new Elysia({
     app.get("/", async ({ set }) => {
       try {
         const bookmarks = await getBookmarks();
-        console.log("Bookmarks fetched successfully.");
         return handleSuccess({ bookmarks });
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
@@ -96,34 +116,64 @@ export const app = new Elysia({
       })
   )
   .post("/favicons", async ({ body, set }) => {
+    console.log(`[Favicon] Iniciando actualización de icono para URL: ${body.url}`);
+
     try {
       if (!body.favicon || !body.url) {
+        console.error("[Favicon] Error: faltan campos requeridos");
         set.status = 400;
         return handleError("Missing favicon or URL", 400);
       }
 
-      const fileName = await FaviconService.saveCustomFavicon(body.url, body.favicon);
+      // 1. Cargar bookmarks actuales
+      const bookmarks = await loadBookmarksFromCache();
+      if (!bookmarks) {
+        throw new Error("No se pudo cargar bookmarks.json");
+      }
+
+      // 2. Guardar el nuevo icono
+      const location = await FaviconService.saveCustomIcon(body.url, body.favicon);
+      console.log(`[Favicon] Icono guardado en: ${location}`);
+
+      // 3. Actualizar location en bookmarks
+      const updated = await updateBookmarkLocation(bookmarks, body.url, location);
+      if (!updated) {
+        throw new Error(`No se encontró el bookmark para la URL: ${body.url}`);
+      }
+
+      // 4. Guardar cambios en bookmarks.json
+      await saveBookmarksToCache(bookmarks);
+      console.log(`[Favicon] Location actualizada en bookmarks`);
+
+      // 5. Actualizar location en favoritos si existe
+      await updateFavoriteLocation(body.url, location);
+      console.log(`[Favicon] Location actualizada en favoritos`);
       
-      // Actualizar favicon en favoritos si existe
-      await updateFaviconUrl(body.url, `/favicons/${fileName}`);
-      
-      return handleSuccess({ message: "Favicon saved successfully" });
-    } catch (error) {
-      console.error("Error saving favicon:", error);
+      return handleSuccess({ 
+        message: "Favicon updated successfully",
+        location 
+      });
+
+    } catch (error: any) {
+      console.error("[Favicon] Error:", error);
       set.status = 500;
-      return handleError("Failed to save favicon");
+      return handleError(error?.message || "Failed to update favicon");
     }
   }, { body: FaviconUploadSchema })
   .get("/obsolete-bookmarks", async () => {
     const obsoleteBookmarks = await getObsoleteBookmarks();
     return handleSuccess({ obsoleteBookmarks });
   })
-  .post("/xbel-reload", async () => {
+  .post("/xbel-reload", async ({ set }) => {
     try {
-      const result = await updateCache();
-      return handleSuccess(result);
+      const result = await handleXBELReload();
+      return handleSuccess({
+        message: result.message,
+        stats: result.stats
+      });
     } catch (error) {
       console.error("Error reloading XBEL:", error);
+      set.status = 500;
       return handleError("Failed to reload XBEL");
     }
   });

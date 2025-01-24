@@ -1,266 +1,191 @@
 # InicioApp Backend
 
-Servicio backend desarrollado con Bun/Elysia vinculado al frontend https://github.com/tricomax/inicioApp-frontend
+Backend para la aplicación InicioApp que gestiona marcadores y sus favicons.
 
-## Stack Tecnológico
+## Características
 
-- **Runtime**: [Bun](https://bun.sh/)
-- **Framework**: [Elysia](https://elysiajs.com/)
-- **Autenticación**: Firebase Admin
-- **APIs Externas**: Google Drive API
-- **Almacenamiento**: Sistema de archivos local para favicons y caché
+- Carga y parseo de archivos XBEL de Chrome
+- Caché de marcadores en formato JSON
+- Gestión de favicons con preservación de formatos
+- Sistema de favoritos
+- API RESTful con Elysia y Bun
 
-## Estructura del Proyecto
+## Endpoints
 
-```
-inicioapp-backend/
-├── src/
-│   ├── assets/                 # Recursos estáticos (iconos predeterminados)
-│   ├── controllers/            # Controladores de rutas
-│   ├── services/              # Lógica de negocio y servicios externos
-│   ├── types/                 # Definiciones de tipos TypeScript
-│   ├── utils/                 # Funciones utilitarias
-│   ├── app.ts                 # Configuración de la aplicación y rutas
-│   └── server.ts              # Punto de entrada del servidor
-├── storage/
-│   └── favicons/             # Favicons descargados y en caché
-└── package.json
-```
+### GET /bookmarks
+Obtiene todos los marcadores desde el caché. Los marcadores incluyen:
+- URL
+- Título
+- Location del favicon
+- Estructura jerárquica (carpetas)
 
-## Instalación y Configuración
+### POST /xbel-reload
+Recarga los marcadores desde el archivo XBEL de Chrome:
+- Parsea el archivo XBEL
+- Descarga los favicons faltantes
+- Actualiza el caché
+- Mantiene los favicons personalizados
 
-1. Instalar dependencias:
-```bash
-bun install
-```
+### POST /favicons
+Actualiza el favicon de un marcador:
+- Acepta cualquier formato de imagen (ico, png, jpg, svg, webp)
+- Preserva el formato original del archivo
+- Actualiza automáticamente las referencias en bookmarks.json
+- Mantiene consistencia entre marcadores y favoritos
 
-2. Configurar credenciales de Firebase Admin y API de Google Drive.
+#### Ejemplo de Implementación Frontend
 
-3. Ejecutar servidor de desarrollo:
-```bash
-bun dev
-```
-
-4. Para construcción de producción:
-```bash
-bun build
-```
-
-## Endpoints de la API
-
-### Autenticación
-
-```
-POST /auth/verify
-```
-- Verifica un token de autenticación de Firebase
-- Cuerpo: `{ token: string }`
-- Respuesta: `{ status: "success", data: { user: UserData } }` o mensaje de error
-
-### Marcadores
-
-```
-GET /bookmarks
-```
-- Obtiene todos los marcadores desde la caché local
-- La respuesta incluye datos del marcador con URLs de favicon
-- Los marcadores se almacenan en caché local y se sincronizan con Google Drive
-- Para recargar desde XBEL, usar primero el endpoint `/xbel-reload`
-
-### Favoritos
-
-```
-GET /favorites
-```
-- Obtiene todos los marcadores favoritos
-- Respuesta: `{ status: "success", data: { favorites: Favorite[] } }`
-
-```
-POST /favorites
-```
-- Añade un nuevo favorito
-- Cuerpo: `{ url: string, title: string, faviconUrl: string }`
-- Respuesta: Mensaje de éxito o error
-
-```
-DELETE /favorites/:url
-```
-- Elimina un favorito por URL
-- La URL debe estar codificada en URI
-- Respuesta: Mensaje de éxito o error
-
-### Favicons
-
-```
-POST /favicons
-```
-- Guarda o actualiza un favicon personalizado para una URL específica
-- Cuerpo: `multipart/form-data` con:
-  - `url`: URL del marcador
-  - `favicon`: Archivo de imagen
-- Actualiza automáticamente la URL del favicon en favoritos si existe
-- Respuesta: `{ status: "success", message: "Favicon saved successfully" }` o mensaje de error
-- Ejemplo de uso en frontend:
 ```javascript
-async function saveCustomFavicon(url, iconFile) {
+// Función para actualizar el icono de un bookmark
+async function updateBookmarkIcon(url, iconFile) {
   const formData = new FormData();
   formData.append('url', url);
   formData.append('favicon', iconFile);
 
-  const response = await fetch('/favicons', {
+  const response = await fetch('http://localhost:3000/favicons', {
     method: 'POST',
     body: formData
   });
 
-  if (response.ok) {
-    // Recargar marcadores para obtener el nuevo favicon
-    await loadBookmarks();
-  } else {
-    console.error('Error al guardar el favicon');
-  }
+  const result = await response.json();
+  // result.data.location contiene la nueva ruta del icono
+  return result;
 }
 
-// Ejemplo de uso con un input file
-const input = document.querySelector('input[type="file"]');
-input.onchange = (e) => {
+// Ejemplo de uso
+const fileInput = document.querySelector('input[type="file"]');
+fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
-  if (file) {
-    saveCustomFavicon('https://example.com', file);
+  const bookmarkUrl = 'https://chat.qwenlm.ai/';
+  
+  try {
+    const result = await updateBookmarkIcon(bookmarkUrl, file);
+    console.log('Nuevo icono guardado en:', result.data.location);
+  } catch (error) {
+    console.error('Error al actualizar el icono:', error);
   }
-};
+});
 ```
 
-### Marcadores Obsoletos
-
-```
-GET /obsolete-bookmarks
-```
-- Obtiene la lista de marcadores que presentan el error "Unable to connect"
-- Estos marcadores pueden requerir revisión manual en el navegador web
-- Respuesta: `{ status: "success", data: { obsoleteBookmarks: string[] } }`
-
-### Recarga de XBEL
-
-```
-POST /xbel-reload
-```
-- Recarga y actualiza la caché de marcadores desde el archivo XBEL
-- Procesa el archivo y actualiza la caché local
-- Respuesta: `{ status: "success", data: { message: "XBEL reloaded successfully" } }` o mensaje de error
-- Esta operación puede tardar varios minutos dependiendo del número de marcadores
-- La conexión se mantiene abierta durante todo el proceso (no hay timeout)
-- Uso recomendado cuando hay cambios en los marcadores del navegador
-- Después de la recarga, usar GET /bookmarks para obtener los datos actualizados
-
-### Archivos Estáticos
-
-```
-GET /favicons/*
-```
-- Sirve archivos de favicon
-- Iconos predeterminados para marcadores y carpetas
-- Favicons descargados automáticamente
-- Favicons personalizados
-
-## Estructuras de Datos
-
-### Tipo Favorito
-```typescript
-interface Favorite {
-  url: string;
-  title: string;
-  faviconUrl: string;
+Respuesta exitosa:
+```json
+{
+  "status": "success",
+  "data": {
+    "message": "Favicon updated successfully",
+    "location": "/favicons/37303430363037353835393630383436353033.png"
+  }
 }
 ```
 
-### Estructura de Marcador
+El proceso:
+1. Frontend envía la URL del bookmark y el archivo de icono
+2. Backend genera un hash de la URL
+3. Guarda el archivo manteniendo su extensión original
+4. Actualiza la referencia en bookmarks.json
+5. Actualiza la referencia en favoritos (si existe)
+6. Devuelve la nueva location del icono
+
+### Favoritos
+
+#### GET /favorites
+Obtiene la lista de favoritos
+
+#### POST /favorites
+Agrega un nuevo favorito:
 ```typescript
-interface Bookmark {
-  type: 'bookmark' | 'folder';
-  title: string;
-  url?: string;
-  faviconUrl: string;
-  children?: Bookmark[];
+{
+  url: string,
+  title: string,
+  location: string  // Ruta al favicon (/favicons/...)
 }
 ```
 
-## Características
+#### DELETE /favorites/:url
+Elimina un favorito
 
-- **Gestión de Favicons**:
-  - Descarga automática de favicons para URLs sin icono personalizado
-  - Soporte para favicons personalizados con prioridad sobre la descarga automática
-  - Actualización automática de favoritos al modificar favicons
-  - Almacenamiento basado en hash de URL para consistencia
-  - Actualización automática al reemplazar favicons existentes
-  - Iconos predeterminados como respaldo
-  - Gestión eficiente del almacenamiento
+## Estructura de Archivos
 
-- **Sincronización de Marcadores**:
-  - Integración con Google Drive para almacenamiento
-  - Caché local para mejor rendimiento
-  - Actualización manual vía endpoint /xbel-reload
-  - Sincronización automática
+### Caché y Almacenamiento
 
-- **Manejo de Errores**:
-   - Respaldo para favicons faltantes
-   - Caché local como respaldo para operación sin conexión
-   - Respuestas de error adecuadas con códigos de estado
-   - Identificación y seguimiento de marcadores inaccesibles
-   - Lista de marcadores con error "Unable to connect" para revisión manual
+- `bookmarks.json`: Caché principal de marcadores
+- `favorites.json`: Lista de favoritos
+- `/storage/favicons/`: Directorio de favicons
+  - Nombres de archivo basados en hash de URL
+  - Mantiene extensión original del archivo
+  - Incluye iconos por defecto
+
+### Endpoints y Controladores
+
+- `app.ts`: Definición de endpoints y rutas
+- `controllers/`: Lógica de negocio
+  - `bookmarks.controller.ts`: Gestión de marcadores
+  - `favorites.controller.ts`: Gestión de favoritos
+  - `xbel-reload.controller.ts`: Recarga desde XBEL
+
+### Servicios
+
+- `services/`:
+  - `favicon.service.ts`: Gestión de iconos
+    - Descarga automática
+    - Subida manual
+    - Preservación de formatos
+  - `cache.service.ts`: Gestión del caché
+  - `drive.service.ts`: Interacción con archivos XBEL
+
+## Manejo de Iconos
+
+### Formatos Soportados
+
+- ICO (favicon.ico)
+- PNG
+- JPEG/JPG
+- SVG
+- WebP
+
+### Funcionalidad
+
+- **Descarga Automática**:
+  - Intenta favicon.ico primero
+  - Busca en HTML si no encuentra favicon.ico
+  - Detecta formato desde content-type
+
+- **Subida Manual**:
+  - Preserva el formato original del archivo
+  - Genera nombre basado en hash de URL
+  - Mantiene extensión original
+
+- **Referencias**:
+  - Usa location en lugar de faviconUrl
+  - Formato: `/favicons/[hash].[ext]`
+  - Consistente en toda la aplicación
+
+### Actualización de Referencias
+
+1. Se guarda el archivo con su formato original
+2. Se actualiza location en bookmarks.json
+3. Se actualiza location en favoritos (si existe)
+4. Se confirma el éxito de la operación
 
 ## Desarrollo
 
-El servidor se ejecuta en el puerto 3000 por defecto. Todas las respuestas siguen un formato estándar:
+### Requisitos
 
-```typescript
-{
-  status: "success" | "error";
-  data?: any;
-  message?: string;
-}
+- Bun
+- Node.js 18+
+
+### Instalación
+
+```bash
+# Instalar dependencias
+bun install
+
+# Iniciar en modo desarrollo
+bun run dev
 ```
 
-## Manejo de Errores
+### Scripts
 
-Todos los endpoints devuelven errores en el formato:
-```typescript
-{
-  status: "error";
-  message: string;
-}
-```
-
-Códigos HTTP comunes:
-- 200: Éxito
-- 400: Error de solicitud (ej: falta archivo en la subida)
-- 401: No autorizado (token inválido)
-- 500: Error del servidor
-
-## Almacenamiento de Archivos
-
-- Los favicons se almacenan en `./storage/favicons/[hash].ico`
-- El registro de favicons personalizados se mantiene en `./storage/favicons/custom_icons.json`
-- Marcadores se almacenan en caché en `bookmarks.json`
-- Favoritos se almacenan en `favorites.json`
-
-## Flujo de Sincronización
-
-1. **Carga Inicial**:
-   - GET /bookmarks carga datos desde la caché local
-
-2. **Actualización Manual**:
-   - POST /xbel-reload procesa el archivo XBEL y actualiza la caché
-   - GET /bookmarks obtiene los datos actualizados
-
-3. **Gestión de Favicons**:
-   - POST /favicons sube un favicon personalizado
-   - El sistema actualiza automáticamente referencias en favoritos
-   - GET /bookmarks refleja los cambios en los favicons
-
-## Gestión de Caché
-
-- Los marcadores se almacenan en caché local para mejor rendimiento
-- Los favicons se almacenan con nombres basados en hash de URL
-- Los favicons personalizados tienen prioridad
-- La limpieza automática respeta los favicons personalizados
-- Uso de /xbel-reload para actualización manual de la caché
+- `bun run dev`: Inicia servidor de desarrollo
+- `bun run build`: Compila el proyecto
+- `bun run start`: Inicia en producción
