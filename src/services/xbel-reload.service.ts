@@ -3,6 +3,7 @@ import { getBookmarksData } from "./drive.service";
 import { parseXMLToJSON } from "../utils/xmlParser";
 import { FaviconService } from "./favicon.service";
 import { loadBookmarksFromCache, saveBookmarksToCache } from "./cache.service";
+import { logger } from "./logger.service";
 
 const BATCH_SIZE = 50;
 const DEFAULT_LOCATION = '/favicons/default-icon.png';
@@ -17,11 +18,11 @@ interface BookmarkMap {
 
 export async function reloadFromXBEL() {
   try {
-    console.time('xbel-reload');
-    console.log("Obteniendo datos de marcadores...");
+    logger.time('xbel-reload');
+    logger.info("Obteniendo datos de marcadores...");
     const xmlData = await getBookmarksData();
 
-    console.log("Parseando XML a JSON...");
+    logger.info("Parseando XML a JSON...");
     const jsonData = await parseXMLToJSON(xmlData);
     
     // Get existing bookmarks for comparison
@@ -31,7 +32,7 @@ export async function reloadFromXBEL() {
     // Extract URLs and identify which ones need icon updates
     const { urlsToProcess, unchangedUrls } = await identifyUrls(jsonData, existingBookmarksMap);
     
-    console.log(`Marcadores a procesar: ${urlsToProcess.length}, sin cambios: ${unchangedUrls.length}`);
+    logger.info(`Marcadores a procesar: ${urlsToProcess.length}, sin cambios: ${unchangedUrls.length}`);
     
     // Process icons
     const locationResults = new Map<string, string>();
@@ -54,7 +55,7 @@ export async function reloadFromXBEL() {
       }
 
       for (const [index, chunk] of chunks.entries()) {
-        console.log(`Procesando lote ${index + 1}/${chunks.length} (${chunk.length} URLs)`);
+        logger.info(`Procesando lote ${index + 1}/${chunks.length} (${chunk.length} URLs)`);
         const downloadPromises = chunk.map(async (url) => {
           try {
             const response = await FaviconService.downloadFavicon(url);
@@ -65,7 +66,7 @@ export async function reloadFromXBEL() {
               }
             }
           } catch (error) {
-            console.error(`Error descargando favicon para ${url}:`, error);
+            logger.error(`Error descargando favicon para ${url}`, error);
           }
         });
 
@@ -85,17 +86,17 @@ export async function reloadFromXBEL() {
     
     // Get final statistics
     const stats = FaviconService.getStats();
-    console.timeEnd('xbel-reload');
+    logger.timeEnd('xbel-reload');
     
-    console.log("\n=== Resumen de Favicons ===");
-    console.log(`Total intentados: ${stats.attempted}`);
-    console.log(`Total encontrados: ${stats.succeeded}`);
-    console.log(`└─ Por favicon.ico: ${stats.icoSucceeded}`);
-    console.log(`└─ Por tag HTML: ${stats.htmlSucceeded}`);
-    console.log(`Tasa de éxito: ${(stats.succeeded / stats.attempted * 100).toFixed(2)}%`);
-    console.log("========================\n");
+    logger.info("\n=== Resumen de Favicons ===");
+    logger.info(`Total intentados: ${stats.attempted}`);
+    logger.info(`Total encontrados: ${stats.succeeded}`);
+    logger.info(`└─ Por favicon.ico: ${stats.icoSucceeded}`);
+    logger.info(`└─ Por tag HTML: ${stats.htmlSucceeded}`);
+    logger.info(`Tasa de éxito: ${(stats.succeeded / stats.attempted * 100).toFixed(2)}%`);
+    logger.info("========================\n");
     
-    return { 
+    return {
       message: "XBEL reload completed successfully",
       stats: {
         totalUrls: allUrls.length,
@@ -110,7 +111,7 @@ export async function reloadFromXBEL() {
       }
     };
   } catch (error) {
-    console.error("Error reloading XBEL:", error);
+    logger.error("Error reloading XBEL", error);
     throw error;
   }
 }

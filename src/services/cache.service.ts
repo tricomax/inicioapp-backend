@@ -1,4 +1,5 @@
 import { promises as fs } from "fs";
+import { logger } from "./logger.service";
 
 const BOOKMARKS_FILE = "./bookmarks.json";
 export let cachedBookmarks: any = null;
@@ -6,11 +7,11 @@ export let cachedBookmarks: any = null;
 export async function initializeCache() {
   try {
     await fs.access(BOOKMARKS_FILE);
-    console.log("Bookmarks cache file exists");
+    logger.info("Archivo de caché de marcadores existe");
     return loadBookmarksFromCache();
   } catch (error: any) {
     if (error.code === "ENOENT") {
-      console.log("Bookmarks cache file does not exist");
+      logger.info("El archivo de caché de marcadores no existe");
       return null;
     }
     throw error;
@@ -21,9 +22,9 @@ export async function saveBookmarksToCache(bookmarks: any) {
   try {
     await fs.writeFile(BOOKMARKS_FILE, JSON.stringify(bookmarks, null, 2));
     cachedBookmarks = bookmarks;
-    console.log("Bookmarks saved to cache successfully");
+    logger.info("Marcadores guardados en caché exitosamente");
   } catch (error) {
-    console.error("Error saving bookmarks to cache:", error);
+    logger.error("Error al guardar marcadores en caché", error);
     throw error;
   }
 }
@@ -32,10 +33,10 @@ export async function loadBookmarksFromCache() {
   try {
     const data = await fs.readFile(BOOKMARKS_FILE, "utf-8");
     cachedBookmarks = JSON.parse(data);
-    console.log("Bookmarks loaded from cache successfully");
+    logger.info("Marcadores cargados desde caché exitosamente");
     return cachedBookmarks;
   } catch (error) {
-    console.error("Error loading bookmarks from cache:", error);
+    logger.error("Error al cargar marcadores desde caché", error);
     return null;
   }
 }

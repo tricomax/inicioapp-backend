@@ -9,6 +9,7 @@ Backend para la aplicación InicioApp que gestiona marcadores y sus favicons.
 - Sistema simple y rápido de favicons
 - Sistema de favoritos
 - API RESTful con Elysia y Bun
+- Sistema de logs personalizado
 
 ## Endpoints
 
@@ -85,6 +86,16 @@ Elimina un favorito
 
 ## Estructura de Archivos
 
+### Carpeta Build (inicioappbackend/)
+
+La carpeta `inicioappbackend/` es el directorio de destino para la versión compilada del proyecto, equivalente a una carpeta dist pero manteniendo la estructura específica del proyecto:
+
+- `src/`: Código JavaScript compilado con la misma estructura que el proyecto original
+  - `assets/`: Recursos estáticos
+  - `controllers/`, `services/`, etc.: Módulos compilados
+- `storage/`: Carpeta para favicons
+- `logs/`: Archivos de log organizados por fecha
+
 ### Caché y Almacenamiento
 
 - `bookmarks.json`: Caché principal de marcadores
@@ -111,6 +122,26 @@ Elimina un favorito
     - Preservación de formatos
   - `cache.service.ts`: Gestión del caché
   - `drive.service.ts`: Interacción con archivos XBEL
+  - `logger.service.ts`: Sistema de logs
+
+## Sistema de Logs
+
+La aplicación incluye un sistema de logs organizado y fácil de mantener:
+
+### Características
+
+- Logs diarios (formato: YYYY-MM-DD.log)
+- Archivos separados para errores (YYYY-MM-DD-error.log)
+- Timestamps en formato ISO
+- Niveles de log (INFO, WARN, ERROR)
+- Salida simultánea a consola y archivo
+
+### Almacenamiento
+
+Los logs se guardan en:
+- `/logs/`: Directorio principal de logs
+  - `YYYY-MM-DD.log`: Logs generales del día
+  - `YYYY-MM-DD-error.log`: Errores del día
 
 ## Sistema de Favicons
 
@@ -156,5 +187,5 @@ bun run dev
 ### Scripts
 
 - `bun run dev`: Inicia servidor de desarrollo
-- `bun run build`: Compila el proyecto
-- `bun run start`: Inicia en producción
+- `bun build build.ts`: Crea build personalizada en inicioappbackend/
+- `cd inicioappbackend && bun src/server.js`: Inicia versión compilada

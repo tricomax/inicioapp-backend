@@ -1,4 +1,5 @@
 import { google, type drive_v3 } from "googleapis";
+import { logger } from "./logger.service";
 
 const credentials = Bun.file(process.env.GOOGLE_CREDENTIALS_PATH!);
 
@@ -9,51 +10,52 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: "v3", auth });
 
-async function getFileContent(fileId: string): Promise<string> { // Se especifica el tipo de retorno como Promise<string>
+async function getFileContent(fileId: string): Promise<string> {
   try {
-    console.log(`Getting content of file with ID: ${fileId}`);
+    logger.info(`Obteniendo contenido del archivo con ID: ${fileId}`);
     const response = await drive.files.get(
       { fileId, alt: "media" },
-      { responseType: "text" } // Forzar que la respuesta sea de tipo texto
+      { responseType: "text" }
     );
-    console.log("File content fetched successfully.");
-    return response.data as string; // Se devuelve la propiedad data como string
+    logger.info("Contenido del archivo obtenido con éxito");
+    return response.data as string;
   } catch (error) {
-    console.error("Error getting file content:", error);
+    logger.error("Error al obtener el contenido del archivo", error);
     throw error;
   }
 }
 
-export async function findBookmarksFile(): Promise<string> { // Asegúrate de que la función devuelve una Promesa que resuelve a un string
+export async function findBookmarksFile(): Promise<string> {
   try {
-    console.log("Finding bookmarks file...");
+    logger.info("Buscando archivo de marcadores...");
     const response = await drive.files.list({
       q: "name='bookmarks.xbel'",
       fields: "files(id, name)",
     });
     const files = response.data.files;
     if (files && files.length > 0) {
-      console.log("Bookmarks file found:", files[0].id);
-      return files[0].id!; // Devuelve el ID del archivo
+      logger.info(`Archivo de marcadores encontrado con ID: ${files[0].id}`);
+      return files[0].id!;
     } else {
-      console.error("Bookmarks file not found.");
-      throw new Error("Bookmarks file not found");
+      const error = new Error("Archivo de marcadores no encontrado");
+      logger.error(error.message);
+      throw error;
     }
   } catch (error) {
-    console.error("Error finding bookmarks file:", error);
+    logger.error("Error al buscar el archivo de marcadores", error);
     throw error;
   }
 }
 
-export async function getBookmarksData(): Promise<string> { // Se especifica el tipo de retorno como Promise<string>
+export async function getBookmarksData(): Promise<string> {
   try {
-    console.log("Getting bookmarks data...");
-    const fileId = await findBookmarksFile(); // Obtiene el ID del archivo
-    const fileContent = await getFileContent(fileId); // Obtiene el contenido del archivo usando el ID
-    console.log("Bookmarks data fetched successfully.");
-    return fileContent; // Devuelve el contenido del archivo
+    logger.info("Obteniendo datos de marcadores...");
+    const fileId = await findBookmarksFile();
+    const fileContent = await getFileContent(fileId);
+    logger.info("Datos de marcadores obtenidos con éxito");
+    return fileContent;
   } catch (error) {
-    console.error("Error getting bookmarks data:", error);
+    logger.error("Error al obtener datos de marcadores", error);
     throw error;
   }
 }

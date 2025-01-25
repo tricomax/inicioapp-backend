@@ -1,11 +1,12 @@
-import { loadBookmarks } from "../services/cache.service";
+import { loadBookmarksFromCache } from "../services/cache.service";
+import { logger } from "../services/logger.service";
 
 export async function updateCache(): Promise<{ message: string }> {
   try {
-    await loadBookmarks();
+    await loadBookmarksFromCache();
     return { message: "Cache updated successfully" };
   } catch (error) {
-    console.error("Error updating cache:", error);
+    logger.error("Error updating cache", error);
     throw error;
   }
 }

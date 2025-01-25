@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { logger } from './logger.service';
 
 const FAVICON_DIR = './storage/favicons';
 const DEFAULT_BOOKMARK_ICON = 'default-icon.png';
@@ -52,28 +53,28 @@ export class FaviconService {
     try {
       // Verificar status
       if (!response.ok) {
-        console.log(`[Favicon] Respuesta no válida (status ${response.status})`);
+        logger.warn(`Respuesta no válida (status ${response.status})`);
         return false;
       }
 
       // Verificar content-type
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('image/')) {
-        console.log(`[Favicon] Content-type no es imagen: ${contentType}`);
+        logger.warn(`Content-type no es imagen: ${contentType}`);
         return false;
       }
 
       // Si hay content-length, verificar que no sea 0
       const contentLength = response.headers.get('content-length');
       if (contentLength && parseInt(contentLength) === 0) {
-        console.log(`[Favicon] Content-length es 0`);
+        logger.warn(`Content-length es 0`);
         return false;
       }
 
       // Si llegamos aquí, la respuesta parece válida
       return true;
     } catch (error) {
-      console.error(`[Favicon] Error validando respuesta:`, error);
+      logger.error(`Error validando respuesta`, error);
       return false;
     }
   }
@@ -83,18 +84,18 @@ export class FaviconService {
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
     try {
-      console.log(`[Favicon] Intentando descargar: ${url}`);
+      logger.info(`Intentando descargar: ${url}`);
       const response = await fetch(url, { signal: controller.signal });
       
       if (await this.isValidResponse(response)) {
-        console.log(`[Favicon] ✅ Descarga exitosa: ${url}`);
+        logger.info(`✅ Descarga exitosa: ${url}`);
         return response;
       }
       
-      console.log(`[Favicon] ❌ Respuesta no válida: ${url}`);
+      logger.warn(`❌ Respuesta no válida: ${url}`);
       return null;
     } catch (error) {
-      console.log(`[Favicon] ❌ Error descargando ${url}:`, error);
+      logger.error(`❌ Error descargando ${url}`, error);
       return null;
     } finally {
       clearTimeout(timeoutId);
@@ -194,11 +195,11 @@ export class FaviconService {
     const domain = new URL(url).origin;
 
     try {
-      console.log(`[Favicon] Procesando URL: ${url}`);
-      console.log(`[Favicon] Dominio: ${domain}`);
+      logger.info(`Procesando URL: ${url}`);
+      logger.info(`Dominio: ${domain}`);
 
       // 1. Primer intento: favicon.ico directo
-      console.log(`[Favicon] Intentando favicon.ico...`);
+      logger.info(`Intentando favicon.ico...`);
       const icoResponse = await this.quickFetch(`${domain}/favicon.ico`);
       if (icoResponse) {
         this.stats.succeeded++;
@@ -207,7 +208,7 @@ export class FaviconService {
       }
 
       // 2. Segundo intento: buscar en HTML
-      console.log(`[Favicon] Buscando en HTML...`);
+      logger.info(`Buscando en HTML...`);
       const pageResponse = await this.quickFetch(domain);
       if (pageResponse) {
         const html = await pageResponse.text();
@@ -215,7 +216,7 @@ export class FaviconService {
         
         if (iconMatch && iconMatch[1]) {
           const iconUrl = new URL(iconMatch[1], domain).href;
-          console.log(`[Favicon] Encontrado link en HTML: ${iconUrl}`);
+          logger.info(`Encontrado link en HTML: ${iconUrl}`);
           const iconResponse = await this.quickFetch(iconUrl);
           if (iconResponse) {
             this.stats.succeeded++;
@@ -223,14 +224,14 @@ export class FaviconService {
             return iconResponse;
           }
         } else {
-          console.log(`[Favicon] No se encontró link de icono en el HTML`);
+          logger.warn(`No se encontró link de icono en el HTML`);
         }
       }
 
-      console.log(`[Favicon] ❌ No se encontró icono para ${url}`);
+      logger.warn(`❌ No se encontró icono para ${url}`);
       return null;
     } catch (error) {
-      console.error(`[Favicon] Error procesando ${url}:`, error);
+      logger.error(`Error procesando ${url}`, error);
       return null;
     }
   }
