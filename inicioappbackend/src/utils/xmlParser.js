@@ -194,8 +194,7 @@ var require_XMLDOMImplementation = __commonJS((exports, module) => {
   (function() {
     var XMLDOMImplementation;
     module.exports = XMLDOMImplementation = function() {
-      function XMLDOMImplementation2() {
-      }
+      function XMLDOMImplementation2() {}
       XMLDOMImplementation2.prototype.hasFeature = function(feature, version) {
         return true;
       };
@@ -221,8 +220,7 @@ var require_XMLDOMErrorHandler = __commonJS((exports, module) => {
   (function() {
     var XMLDOMErrorHandler;
     module.exports = XMLDOMErrorHandler = function() {
-      function XMLDOMErrorHandler2() {
-      }
+      function XMLDOMErrorHandler2() {}
       XMLDOMErrorHandler2.prototype.handleError = function(error) {
         throw new Error(error);
       };
@@ -2906,14 +2904,10 @@ var require_XMLWriterBase = __commonJS((exports, module) => {
         this.closeNode(node, options, level);
         return r;
       };
-      XMLWriterBase2.prototype.openNode = function(node, options, level) {
-      };
-      XMLWriterBase2.prototype.closeNode = function(node, options, level) {
-      };
-      XMLWriterBase2.prototype.openAttribute = function(att, options, level) {
-      };
-      XMLWriterBase2.prototype.closeAttribute = function(att, options, level) {
-      };
+      XMLWriterBase2.prototype.openNode = function(node, options, level) {};
+      XMLWriterBase2.prototype.closeNode = function(node, options, level) {};
+      XMLWriterBase2.prototype.openAttribute = function(att, options, level) {};
+      XMLWriterBase2.prototype.closeAttribute = function(att, options, level) {};
       return XMLWriterBase2;
     }();
   }).call(exports);
@@ -3206,10 +3200,8 @@ var require_XMLDocumentCB = __commonJS((exports, module) => {
         this.writer = options.writer;
         this.writerOptions = this.writer.filterOptions(writerOptions);
         this.stringify = new XMLStringifier(options);
-        this.onDataCallback = onData || function() {
-        };
-        this.onEndCallback = onEnd || function() {
-        };
+        this.onDataCallback = onData || function() {};
+        this.onEndCallback = onEnd || function() {};
         this.currentNode = null;
         this.currentLevel = -1;
         this.openTags = {};
@@ -4054,8 +4046,7 @@ var require_sax = __commonJS((exports) => {
     }
     if (!Object.create) {
       Object.create = function(o) {
-        function F() {
-        }
+        function F() {}
         F.prototype = o;
         var newf = new F;
         return newf;
@@ -4133,12 +4124,10 @@ var require_sax = __commonJS((exports) => {
     try {
       Stream = __require("stream").Stream;
     } catch (ex) {
-      Stream = function() {
-      };
+      Stream = function() {};
     }
     if (!Stream)
-      Stream = function() {
-      };
+      Stream = function() {};
     var streamWraps = sax.EVENTS.filter(function(ev) {
       return ev !== "error" && ev !== "end";
     });
@@ -4927,8 +4916,7 @@ Char: ` + parser.c;
             if (c === "!") {
               parser.state = S.SGML_DECL;
               parser.sgmlDecl = "";
-            } else if (isWhitespace(c)) {
-            } else if (isMatch(nameStart, c)) {
+            } else if (isWhitespace(c)) {} else if (isMatch(nameStart, c)) {
               parser.state = S.OPEN_TAG;
               parser.tagName = c;
             } else if (c === "/") {
@@ -5876,42 +5864,71 @@ var require_xml2js = __commonJS((exports) => {
 
 // src/utils/xmlParser.ts
 var import_xml2js = __toESM(require_xml2js(), 1);
-async function parseXMLToJSON(xml) {
-  try {
-    console.log("Parsing XML to JSON...");
-    const result = await import_xml2js.parseStringPromise(xml);
-    console.log("XML parsed to JSON successfully.");
-    return transformBookmarks(result.xbel);
-  } catch (error) {
-    console.error("Error parsing XML to JSON:", error);
-    throw error;
+
+class XBELParseError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "XBELParseError";
   }
+}
+function stripNamespacePrefix(key) {
+  const separator = key.indexOf(":");
+  return separator === -1 ? key : key.slice(separator + 1);
+}
+function normalizeKeys(data) {
+  if (Array.isArray(data)) {
+    return data.map(normalizeKeys);
+  }
+  if (data && typeof data === "object") {
+    const result = {};
+    for (const [key, value] of Object.entries(data)) {
+      const normalizedKey = key === "$" ? key : stripNamespacePrefix(key);
+      result[normalizedKey] = normalizeKeys(value);
+    }
+    return result;
+  }
+  return data;
+}
+async function parseXMLToJSON(xml) {
+  let result;
+  try {
+    result = await import_xml2js.parseStringPromise(xml);
+  } catch (error) {
+    throw new XBELParseError(error?.message || "El XML no se pudo parsear");
+  }
+  const normalized = normalizeKeys(result);
+  const xbel = normalized?.xbel;
+  if (!xbel) {
+    throw new XBELParseError("No se encontr\xF3 la etiqueta ra\xEDz <xbel>");
+  }
+  return transformBookmarks(xbel);
 }
 function transformBookmarks(data) {
-  if (data.folder) {
-    return data.folder.map((folder) => ({
-      id: folder.$.id,
-      title: folder.title[0],
+  const items = [];
+  const folders = Array.isArray(data?.folder) ? data.folder : [];
+  const bookmarks = Array.isArray(data?.bookmark) ? data.bookmark : [];
+  for (const folder of folders) {
+    items.push({
+      id: folder.$?.id,
+      title: folder.title?.[0],
       type: "folder",
-      children: folder.bookmark ? folder.bookmark.map((bookmark) => ({
-        id: bookmark.$.id,
-        title: bookmark.title[0],
-        url: bookmark.$.href,
-        type: "bookmark"
-      })).concat(folder.folder ? transformBookmarks(folder) : []) : folder.folder ? transformBookmarks(folder) : []
-    }));
-  } else if (data.bookmark) {
-    return data.bookmark.map((bookmark) => ({
-      id: bookmark.$.id,
-      title: bookmark.title[0],
-      url: bookmark.$.href,
-      type: "bookmark"
-    }));
-  } else {
-    console.log("Unknown element type:", data);
-    return [];
+      children: transformBookmarks(folder)
+    });
   }
+  for (const bookmark of bookmarks) {
+    items.push({
+      id: bookmark.$?.id,
+      title: bookmark.title?.[0],
+      url: bookmark.$?.href,
+      type: "bookmark"
+    });
+  }
+  if (items.length === 0) {
+    console.log("Unknown element type:", data);
+  }
+  return items;
 }
 export {
-  parseXMLToJSON
+  parseXMLToJSON,
+  XBELParseError
 };

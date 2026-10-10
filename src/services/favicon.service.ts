@@ -192,7 +192,21 @@ export class FaviconService {
 
   static async downloadFavicon(url: string): Promise<Response | null> {
     this.stats.attempted++;
-    const domain = new URL(url).origin;
+
+    // Los marcadores locales (file://) o las URLs malformadas no tienen favicon
+    // descargable: se devuelve null en lugar de romper todo el proceso.
+    let domain: string;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        logger.info(`Omitiendo favicon para protocolo no soportado: ${parsed.protocol}//`);
+        return null;
+      }
+      domain = parsed.origin;
+    } catch {
+      logger.warn(`URL no válida, se omite el favicon: ${url}`);
+      return null;
+    }
 
     try {
       logger.info(`Procesando URL: ${url}`);

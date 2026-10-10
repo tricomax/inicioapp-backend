@@ -9,7 +9,7 @@ Backend para la aplicación InicioApp que gestiona marcadores y sus favicons.
 - Sistema simple y rápido de favicons
 - Sistema de favoritos
 - API RESTful con Elysia y Bun
-- Sistema de logs personalizado
+- Sistema de logs por consola
 
 ## Endpoints
 
@@ -94,7 +94,6 @@ La carpeta `inicioappbackend/` es el directorio de destino para la versión comp
   - `assets/`: Recursos estáticos
   - `controllers/`, `services/`, etc.: Módulos compilados
 - `storage/`: Carpeta para favicons
-- `logs/`: Archivos de log organizados por fecha
 
 ### Caché y Almacenamiento
 
@@ -126,22 +125,18 @@ La carpeta `inicioappbackend/` es el directorio de destino para la versión comp
 
 ## Sistema de Logs
 
-La aplicación incluye un sistema de logs organizado y fácil de mantener:
+La aplicación incluye un sistema de logs por consola eficiente y detallado:
 
 ### Características
 
-- Logs diarios (formato: YYYY-MM-DD.log)
-- Archivos separados para errores (YYYY-MM-DD-error.log)
 - Timestamps en formato ISO
-- Niveles de log (INFO, WARN, ERROR)
-- Salida simultánea a consola y archivo
-
-### Almacenamiento
-
-Los logs se guardan en:
-- `/logs/`: Directorio principal de logs
-  - `YYYY-MM-DD.log`: Logs generales del día
-  - `YYYY-MM-DD-error.log`: Errores del día
+- Niveles de log (INFO, WARN, ERROR, HTTP)
+- Logging automático de peticiones HTTP incluyendo:
+  - Método (GET, POST, etc.)
+  - Ruta
+  - Código de estado
+  - Tiempo de respuesta
+- Logs de errores con stack trace completo
 
 ## Sistema de Favicons
 

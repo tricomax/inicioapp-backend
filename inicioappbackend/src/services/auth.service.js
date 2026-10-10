@@ -332,8 +332,7 @@ var require_error = __commonJS((exports) => {
       if (clientCodeKey === "INTERNAL_ERROR" && typeof rawServerResponse !== "undefined") {
         try {
           error.message += ` Raw server response: "${JSON.stringify(rawServerResponse)}"`;
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       return new FirebaseAuthError(error);
     }
@@ -385,8 +384,7 @@ var require_error = __commonJS((exports) => {
       if (clientCodeKey === "UNKNOWN_ERROR" && typeof rawServerResponse !== "undefined") {
         try {
           error.message += ` Raw server response: "${JSON.stringify(rawServerResponse)}"`;
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       return new FirebaseMessagingError(error);
     }
@@ -397,8 +395,7 @@ var require_error = __commonJS((exports) => {
       if (clientCodeKey === "UNKNOWN_ERROR" && typeof rawServerResponse !== "undefined") {
         try {
           error.message += ` Raw server response: "${JSON.stringify(rawServerResponse)}"`;
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       return new FirebaseMessagingError(error);
     }
@@ -1045,8 +1042,7 @@ var require_extend = __commonJS((exports, module) => {
       return false;
     }
     var key;
-    for (key in obj) {
-    }
+    for (key in obj) {}
     return typeof key === "undefined" || hasOwn.call(obj, key);
   };
   var setProperty = function setProperty(target, options) {
@@ -1263,8 +1259,7 @@ var require_common = __commonJS((exports) => {
       if (this.response) {
         try {
           this.response.data = translateData(this.config.responseType, (_b = this.response) === null || _b === undefined ? undefined : _b.data);
-        } catch (_c) {
-        }
+        } catch (_c) {}
         this.status = this.response.status;
       }
       if (error && "code" in error && error.code) {
@@ -1346,8 +1341,7 @@ var require_common = __commonJS((exports) => {
           url.searchParams.set("client_secret", REDACT);
         }
         data.config.url = url.toString();
-      } catch (_b) {
-      }
+      } catch (_b) {}
     }
     if (data.response) {
       defaultErrorRedactor({ config: data.response.config });
@@ -1690,8 +1684,7 @@ var require_v35 = __commonJS((exports) => {
     }
     try {
       generateUUID.name = name;
-    } catch (err) {
-    }
+    } catch (err) {}
     generateUUID.DNS = DNS;
     generateUUID.URL = URL2;
     return generateUUID;
@@ -2345,8 +2338,7 @@ var require_browser = __commonJS((exports, module) => {
     });
     args.splice(lastC, 0, c);
   }
-  exports.log = console.debug || console.log || (() => {
-  });
+  exports.log = console.debug || console.log || (() => {});
   function save(namespaces) {
     try {
       if (namespaces) {
@@ -2354,15 +2346,13 @@ var require_browser = __commonJS((exports, module) => {
       } else {
         exports.storage.removeItem("debug");
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
   function load() {
     let r;
     try {
       r = exports.storage.getItem("debug");
-    } catch (error) {
-    }
+    } catch (error) {}
     if (!r && typeof process !== "undefined" && "env" in process) {
       r = process.env.DEBUG;
     }
@@ -2371,8 +2361,7 @@ var require_browser = __commonJS((exports, module) => {
   function localstorage() {
     try {
       return localStorage;
-    } catch (error) {
-    }
+    } catch (error) {}
   }
   module.exports = require_common2()(exports);
   var { formatters } = module.exports;
@@ -2395,8 +2384,7 @@ var require_node = __commonJS((exports, module) => {
   exports.save = save;
   exports.load = load;
   exports.useColors = useColors;
-  exports.destroy = util.deprecate(() => {
-  }, "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
+  exports.destroy = util.deprecate(() => {}, "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
   exports.colors = [6, 2, 3, 4, 5, 1];
   try {
     const supportsColor = (()=>{throw new Error("Cannot require module "+"supports-color");})();
@@ -2480,8 +2468,7 @@ var require_node = __commonJS((exports, module) => {
         221
       ];
     }
-  } catch (error) {
-  }
+  } catch (error) {}
   exports.inspectOpts = Object.keys(process.env).filter((key) => {
     return /^debug_/i.test(key);
   }).reduce((obj, key) => {
@@ -3194,8 +3181,7 @@ var require_gaxios = __commonJS((exports) => {
           let data = await res.text();
           try {
             data = JSON.parse(data);
-          } catch (_b) {
-          }
+          } catch (_b) {}
           return data;
         }
         case "arraybuffer":
@@ -3240,8 +3226,7 @@ var require_gaxios = __commonJS((exports) => {
         let data = await response.text();
         try {
           data = JSON.parse(data);
-        } catch (_b) {
-        }
+        } catch (_b) {}
         return data;
       } else if (contentType.match(/^text\//)) {
         return response.text();
@@ -3367,8 +3352,7 @@ Content-Type: ${partContentType}\r
       opts.headers["Content-Type"] = `multipart/related; boundary=${boundary}`;
       const bodyStream = new stream_1.PassThrough;
       opts.body = bodyStream;
-      (0, stream_1.pipeline)(this.getMultipartRequest(opts.multipart, boundary), bodyStream, () => {
-      });
+      (0, stream_1.pipeline)(this.getMultipartRequest(opts.multipart, boundary), bodyStream, () => {});
     }
     opts.validateStatus = opts.validateStatus || this.validateStatus;
     opts.responseType = opts.responseType || "unknown";
@@ -3378,8 +3362,7 @@ Content-Type: ${partContentType}\r
     opts.method = opts.method || "GET";
     const proxy = opts.proxy || ((_b = process === null || process === undefined ? undefined : process.env) === null || _b === undefined ? undefined : _b.HTTPS_PROXY) || ((_c = process === null || process === undefined ? undefined : process.env) === null || _c === undefined ? undefined : _c.https_proxy) || ((_d = process === null || process === undefined ? undefined : process.env) === null || _d === undefined ? undefined : _d.HTTP_PROXY) || ((_e = process === null || process === undefined ? undefined : process.env) === null || _e === undefined ? undefined : _e.http_proxy);
     const urlMayUseProxy = __classPrivateFieldGet(this, _Gaxios_instances, "m", _Gaxios_urlMayUseProxy).call(this, opts.url, opts.noProxy);
-    if (opts.agent) {
-    } else if (proxy && urlMayUseProxy) {
+    if (opts.agent) {} else if (proxy && urlMayUseProxy) {
       const HttpsProxyAgent = await __classPrivateFieldGet(_a, _a, "m", _Gaxios_getProxyAgent).call(_a);
       if (this.agentCache.has(proxy)) {
         opts.agent = this.agentCache.get(proxy);
@@ -5462,8 +5445,7 @@ var require_src3 = __commonJS((exports) => {
       if (typeof res.data === "string") {
         try {
           return jsonBigint.parse(res.data);
-        } catch (_a) {
-        }
+        } catch (_a) {}
       }
       return res.data;
     } catch (e) {
@@ -8936,12 +8918,9 @@ var require_filesubjecttokensupplier = __commonJS((exports) => {
   exports.FileSubjectTokenSupplier = undefined;
   var util_1 = __require("util");
   var fs = __require("fs");
-  var readFile = (0, util_1.promisify)((_a = fs.readFile) !== null && _a !== undefined ? _a : () => {
-  });
-  var realpath = (0, util_1.promisify)((_b = fs.realpath) !== null && _b !== undefined ? _b : () => {
-  });
-  var lstat = (0, util_1.promisify)((_c = fs.lstat) !== null && _c !== undefined ? _c : () => {
-  });
+  var readFile = (0, util_1.promisify)((_a = fs.readFile) !== null && _a !== undefined ? _a : () => {});
+  var realpath = (0, util_1.promisify)((_b = fs.realpath) !== null && _b !== undefined ? _b : () => {});
+  var lstat = (0, util_1.promisify)((_c = fs.lstat) !== null && _c !== undefined ? _c : () => {});
 
   class FileSubjectTokenSupplier {
     constructor(opts) {
@@ -10249,8 +10228,7 @@ var require_googleauth = __commonJS((exports) => {
               const projectId = JSON.parse(stdout).configuration.properties.core.project;
               resolve(projectId);
               return;
-            } catch (e) {
-            }
+            } catch (e) {}
           }
           resolve(null);
         });
@@ -12262,8 +12240,7 @@ var require_cipher = __commonJS((exports, module) => {
     if (input) {
       this._input.putBuffer(input);
     }
-    while (!this._op.call(this.mode, this._input, this.output, this._finish) && !this._finish) {
-    }
+    while (!this._op.call(this.mode, this._input, this.output, this._finish) && !this._finish) {}
     this._input.compact();
   };
   BlockCipher.prototype.finish = function(pad) {
@@ -12314,8 +12291,7 @@ var require_cipherModes = __commonJS((exports, module) => {
     this._inBlock = new Array(this._ints);
     this._outBlock = new Array(this._ints);
   };
-  modes.ecb.prototype.start = function(options) {
-  };
+  modes.ecb.prototype.start = function(options) {};
   modes.ecb.prototype.encrypt = function(input, output, finish) {
     if (input.length() < this.blockSize && !(finish && input.length() > 0)) {
       return true;
@@ -13590,8 +13566,7 @@ var require_asn1 = __commonJS((exports, module) => {
           if (used === length && (tc === asn1.Class.UNIVERSAL || tc === asn1.Class.CONTEXT_SPECIFIC)) {
             value = [composed];
           }
-        } catch (ex) {
-        }
+        } catch (ex) {}
       }
       if (value === undefined) {
         bytes.read = savedRead;
@@ -15506,8 +15481,7 @@ var require_random = __commonJS((exports, module) => {
         };
       }
       if (forge.options.usePureJavaScript || !forge.util.isNodejs && !getRandomValues) {
-        if (typeof window === "undefined" || window.document === undefined) {
-        }
+        if (typeof window === "undefined" || window.document === undefined) {}
         _ctx.collectInt(+new Date, 32);
         if (typeof navigator !== "undefined") {
           var _navBytes = "";
@@ -15516,8 +15490,7 @@ var require_random = __commonJS((exports, module) => {
               if (typeof navigator[key] == "string") {
                 _navBytes += navigator[key];
               }
-            } catch (e) {
-            }
+            } catch (e) {}
           }
           _ctx.collect(_navBytes);
           _navBytes = null;
@@ -16928,8 +16901,7 @@ var require_jsbn = __commonJS((exports, module) => {
       ++this.data[w];
     }
   }
-  function NullExp() {
-  }
+  function NullExp() {}
   function nNop(x) {
     return x;
   }
@@ -21641,8 +21613,7 @@ var require_x509 = __commonJS((exports, module) => {
             parent = parents.shift();
             try {
               verified = parent.verify(cert);
-            } catch (ex) {
-            }
+            } catch (ex) {}
           }
           if (!verified) {
             error = {
@@ -22471,8 +22442,7 @@ var require_tls = __commonJS((exports, module) => {
       record.fragment = forge.util.createBuffer(bytes);
       record.length = bytes.length;
       rval = true;
-    } catch (ex) {
-    }
+    } catch (ex) {}
     return rval;
   };
   var inflate = function(c, record, s) {
@@ -22482,8 +22452,7 @@ var require_tls = __commonJS((exports, module) => {
       record.fragment = forge.util.createBuffer(bytes);
       record.length = bytes.length;
       rval = true;
-    } catch (ex) {
-    }
+    } catch (ex) {}
     return rval;
   };
   var readVector = function(b, lenBytes) {
@@ -26236,8 +26205,7 @@ var require_log = __commonJS((exports, module) => {
     sConsoleLogger = logger;
   } else {
     console = {
-      log: function() {
-      }
+      log: function() {}
     };
   }
   var logger;
@@ -28313,8 +28281,7 @@ var require_PartStream = __commonJS((exports, module) => {
     ReadableStream.call(this, opts);
   }
   inherits(PartStream, ReadableStream);
-  PartStream.prototype._read = function(n) {
-  };
+  PartStream.prototype._read = function(n) {};
   module.exports = PartStream;
 });
 
@@ -28441,8 +28408,7 @@ var require_Dicer = __commonJS((exports, module) => {
   var B_ONEDASH = Buffer.from("-");
   var B_CRLF = Buffer.from(`\r
 `);
-  var EMPTY_FN = function() {
-  };
+  var EMPTY_FN = function() {};
   function Dicer(cfg) {
     if (!(this instanceof Dicer)) {
       return new Dicer(cfg);
@@ -28759,8 +28725,7 @@ var require_decodeText = __commonJS((exports, module) => {
       if (textDecoders.has(exports.toString())) {
         try {
           return textDecoders.get(exports).decode(data);
-        } catch {
-        }
+        } catch {}
       }
       return typeof data === "string" ? data : data.toString();
     }
@@ -29653,8 +29618,7 @@ var require_multipart = __commonJS((exports, module) => {
     this.truncated = false;
   }
   inherits(FileStream, Readable);
-  FileStream.prototype._read = function(n) {
-  };
+  FileStream.prototype._read = function(n) {};
   module.exports = Multipart;
 });
 
@@ -33385,8 +33349,7 @@ var require_auth_api_request = __commonJS((exports) => {
       if (!auth_config_1.OIDCConfig.isProviderId(providerId)) {
         return Promise.reject(new error_1.FirebaseAuthError(error_1.AuthClientErrorCode.INVALID_PROVIDER_ID));
       }
-      return this.invokeRequestHandler(this.getProjectConfigUrlBuilder(), DELETE_OAUTH_IDP_CONFIG, {}, { providerId }).then(() => {
-      });
+      return this.invokeRequestHandler(this.getProjectConfigUrlBuilder(), DELETE_OAUTH_IDP_CONFIG, {}, { providerId }).then(() => {});
     }
     createOAuthIdpConfig(options) {
       let request;
@@ -33446,8 +33409,7 @@ var require_auth_api_request = __commonJS((exports) => {
       if (!auth_config_1.SAMLConfig.isProviderId(providerId)) {
         return Promise.reject(new error_1.FirebaseAuthError(error_1.AuthClientErrorCode.INVALID_PROVIDER_ID));
       }
-      return this.invokeRequestHandler(this.getProjectConfigUrlBuilder(), DELETE_INBOUND_SAML_CONFIG, {}, { providerId }).then(() => {
-      });
+      return this.invokeRequestHandler(this.getProjectConfigUrlBuilder(), DELETE_INBOUND_SAML_CONFIG, {}, { providerId }).then(() => {});
     }
     createInboundSamlConfig(options) {
       let request;
@@ -33616,8 +33578,7 @@ var require_auth_api_request = __commonJS((exports) => {
       if (!validator.isNonEmptyString(tenantId)) {
         return Promise.reject(new error_1.FirebaseAuthError(error_1.AuthClientErrorCode.INVALID_TENANT_ID));
       }
-      return this.invokeRequestHandler(this.authResourceUrlBuilder, DELETE_TENANT, undefined, { tenantId }).then(() => {
-      });
+      return this.invokeRequestHandler(this.authResourceUrlBuilder, DELETE_TENANT, undefined, { tenantId }).then(() => {});
     }
     createTenant(tenantOptions) {
       try {
@@ -34494,8 +34455,7 @@ var require_decode = __commonJS((exports, module) => {
         if (obj !== null && typeof obj === "object") {
           payload = obj;
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     if (options.complete === true) {
       return {
@@ -34600,8 +34560,7 @@ var require_constants = __commonJS((exports, module) => {
 
 // node_modules/semver/internal/debug.js
 var require_debug = __commonJS((exports, module) => {
-  var debug = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
-  };
+  var debug = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {};
   module.exports = debug;
 });
 
@@ -36882,8 +36841,7 @@ var require_lodash5 = __commonJS((exports, module) => {
     if (value != null && typeof value.toString != "function") {
       try {
         result = !!(value + "");
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     return result;
   }
@@ -37817,16 +37775,14 @@ async function cbcDecrypt(enc, cek, ciphertext, iv, tag, aad) {
   let macCheckPassed;
   try {
     macCheckPassed = timing_safe_equal_default(tag, expectedTag);
-  } catch (_a) {
-  }
+  } catch (_a) {}
   if (!macCheckPassed) {
     throw new JWEDecryptionFailed;
   }
   let plaintext;
   try {
     plaintext = new Uint8Array(await webcrypto_default.subtle.decrypt({ iv, name: "AES-CBC" }, encKey, ciphertext));
-  } catch (_b) {
-  }
+  } catch (_b) {}
   if (!plaintext) {
     throw new JWEDecryptionFailed;
   }
@@ -39092,8 +39048,7 @@ async function generalDecrypt(jwe, key, options) {
         tag: jwe.tag,
         unprotected: jwe.unprotected
       }, key, options);
-    } catch (_a) {
-    }
+    } catch (_a) {}
   }
   throw new JWEDecryptionFailed;
 }
@@ -39794,8 +39749,7 @@ async function generalVerify(jws, key, options) {
         protected: signature.protected,
         signature: signature.signature
       }, key, options);
-    } catch (_a) {
-    }
+    } catch (_a) {}
   }
   throw new JWSSignatureVerificationFailed;
 }
@@ -39871,8 +39825,7 @@ var normalizeTyp = (value) => value.toLowerCase().replace(/^application\//, ""),
   let payload;
   try {
     payload = JSON.parse(decoder.decode(encodedPayload));
-  } catch (_a) {
-  }
+  } catch (_a) {}
   if (!isObject(payload)) {
     throw new JWTInvalid("JWT Claims Set must be a top-level JSON object");
   }
@@ -41534,8 +41487,7 @@ var require_yallist = __commonJS((exports, module) => {
   }
   try {
     require_iterator()(Yallist);
-  } catch (er) {
-  }
+  } catch (er) {}
 });
 
 // node_modules/lru-cache/index.js
@@ -41899,8 +41851,7 @@ var require_lodash8 = __commonJS((exports, module) => {
     if (value != null && typeof value.toString != "function") {
       try {
         result = !!(value + "");
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     return result;
   }
@@ -42371,12 +42322,10 @@ var require_lodash8 = __commonJS((exports, module) => {
     if (func != null) {
       try {
         return funcToString.call(func);
-      } catch (e) {
-      }
+      } catch (e) {}
       try {
         return func + "";
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     return "";
   }
@@ -43877,8 +43826,7 @@ var require_user_record = __commonJS((exports) => {
       if (!isNaN(date.getTime())) {
         return date.toUTCString();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
   var MultiFactorId;
@@ -43895,10 +43843,8 @@ var require_user_record = __commonJS((exports) => {
           multiFactorInfo = new PhoneMultiFactorInfo(response);
         } else if (response.totpInfo !== undefined) {
           multiFactorInfo = new TotpMultiFactorInfo(response);
-        } else {
-        }
-      } catch (e) {
-      }
+        } else {}
+      } catch (e) {}
       return multiFactorInfo;
     }
     constructor(response) {
@@ -44241,8 +44187,7 @@ var require_base_auth = __commonJS((exports) => {
       });
     }
     deleteUser(uid) {
-      return this.authRequestHandler.deleteAccount(uid).then(() => {
-      });
+      return this.authRequestHandler.deleteAccount(uid).then(() => {});
     }
     deleteUsers(uids) {
       if (!validator.isArray(uids)) {
@@ -44304,12 +44249,10 @@ var require_base_auth = __commonJS((exports) => {
       });
     }
     setCustomUserClaims(uid, customUserClaims) {
-      return this.authRequestHandler.setCustomUserClaims(uid, customUserClaims).then(() => {
-      });
+      return this.authRequestHandler.setCustomUserClaims(uid, customUserClaims).then(() => {});
     }
     revokeRefreshTokens(uid) {
-      return this.authRequestHandler.revokeRefreshTokens(uid).then(() => {
-      });
+      return this.authRequestHandler.revokeRefreshTokens(uid).then(() => {});
     }
     importUsers(users, options) {
       return this.authRequestHandler.uploadAccount(users, options);
@@ -44928,10 +44871,8 @@ var require_index_node_cjs = __commonJS((exports) => {
 
   class Deferred {
     constructor() {
-      this.reject = () => {
-      };
-      this.resolve = () => {
-      };
+      this.reject = () => {};
+      this.resolve = () => {};
       this.promise = new Promise((resolve, reject) => {
         this.resolve = resolve;
         this.reject = reject;
@@ -44945,8 +44886,7 @@ var require_index_node_cjs = __commonJS((exports) => {
           this.resolve(value);
         }
         if (typeof callback === "function") {
-          this.promise.catch(() => {
-          });
+          this.promise.catch(() => {});
           if (callback.length === 1) {
             callback(error);
           } else {
@@ -45137,8 +45077,7 @@ var require_index_node_cjs = __commonJS((exports) => {
       signature = parts[2];
       data = claims["d"] || {};
       delete claims["d"];
-    } catch (e) {
-    }
+    } catch (e) {}
     return {
       header,
       claims,
@@ -45496,8 +45435,7 @@ var require_index_node_cjs = __commonJS((exports) => {
             } else {
               observer.complete();
             }
-          } catch (e) {
-          }
+          } catch (e) {}
           return;
         });
       }
@@ -45571,8 +45509,7 @@ var require_index_node_cjs = __commonJS((exports) => {
     }
     return false;
   }
-  function noop() {
-  }
+  function noop() {}
   var validateArgCount = function(fnName, minCount, maxCount, argCount) {
     let argError;
     if (argCount < minCount) {
@@ -45973,8 +45910,7 @@ var require_index_cjs2 = __commonJS((exports) => {
             if (instance) {
               deferred.resolve(instance);
             }
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }
       return this.instancesDeferred.get(normalizedIdentifier).promise;
@@ -46020,8 +45956,7 @@ var require_index_cjs2 = __commonJS((exports) => {
       if (isComponentEager(component)) {
         try {
           this.getOrInitializeService({ instanceIdentifier: DEFAULT_ENTRY_NAME });
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       for (const [instanceIdentifier, instanceDeferred] of this.instancesDeferred.entries()) {
         const normalizedIdentifier = this.normalizeInstanceIdentifier(instanceIdentifier);
@@ -46030,8 +45965,7 @@ var require_index_cjs2 = __commonJS((exports) => {
             instanceIdentifier: normalizedIdentifier
           });
           instanceDeferred.resolve(instance);
-        } catch (e) {
-        }
+        } catch (e) {}
       }
     }
     clearInstance(identifier = DEFAULT_ENTRY_NAME) {
@@ -46098,8 +46032,7 @@ var require_index_cjs2 = __commonJS((exports) => {
       for (const callback of callbacks) {
         try {
           callback(instance, identifier);
-        } catch (_a) {
-        }
+        } catch (_a) {}
       }
     }
     getOrInitializeService({ instanceIdentifier, options = {} }) {
@@ -46115,8 +46048,7 @@ var require_index_cjs2 = __commonJS((exports) => {
         if (this.component.onInstanceCreated) {
           try {
             this.component.onInstanceCreated(this.container, instanceIdentifier, instance);
-          } catch (_a) {
-          }
+          } catch (_a) {}
         }
       }
       return instance || null;
@@ -46329,8 +46261,7 @@ var require_index_standalone = __commonJS((exports) => {
     if (message3 !== undefined)
       this.write(message3);
   };
-  Messages.prototype.destroy = function() {
-  };
+  Messages.prototype.destroy = function() {};
   streams$1.IO = IO;
   streams$1.Messages = Messages;
   var Headers$3 = function() {
@@ -46454,8 +46385,7 @@ var require_index_standalone = __commonJS((exports) => {
     STATES: ["connecting", "open", "closing", "closed"],
     _bindEventListeners: function() {
       var self2 = this;
-      this.messages.on("error", function() {
-      });
+      this.messages.on("error", function() {});
       this.on("message", function(event2) {
         var messages = self2.messages;
         if (messages.readable)
@@ -46557,10 +46487,8 @@ var require_index_standalone = __commonJS((exports) => {
   for (key$b in instance$b)
     Base$7.prototype[key$b] = instance$b[key$b];
   var key$b;
-  Base$7.ConnectEvent = function() {
-  };
-  Base$7.OpenEvent = function() {
-  };
+  Base$7.ConnectEvent = function() {};
+  Base$7.OpenEvent = function() {};
   Base$7.CloseEvent = function(code, reason) {
     this.code = code;
     this.reason = reason;
@@ -46611,8 +46539,7 @@ var require_index_standalone = __commonJS((exports) => {
   var kOnHeadersComplete = HTTPParser.kOnHeadersComplete = 2;
   var kOnBody = HTTPParser.kOnBody = 3;
   var kOnMessageComplete = HTTPParser.kOnMessageComplete = 4;
-  HTTPParser.prototype[kOnHeaders] = HTTPParser.prototype[kOnHeadersComplete] = HTTPParser.prototype[kOnBody] = HTTPParser.prototype[kOnMessageComplete] = function() {
-  };
+  HTTPParser.prototype[kOnHeaders] = HTTPParser.prototype[kOnHeadersComplete] = HTTPParser.prototype[kOnBody] = HTTPParser.prototype[kOnMessageComplete] = function() {};
   var compatMode0_12 = true;
   Object.defineProperty(HTTPParser, "kOnExecute", {
     get: function() {
@@ -46657,8 +46584,7 @@ var require_index_standalone = __commonJS((exports) => {
   ];
   var method_connect = methods.indexOf("CONNECT");
   HTTPParser.prototype.reinitialize = HTTPParser;
-  HTTPParser.prototype.close = HTTPParser.prototype.pause = HTTPParser.prototype.resume = HTTPParser.prototype.free = function() {
-  };
+  HTTPParser.prototype.close = HTTPParser.prototype.pause = HTTPParser.prototype.resume = HTTPParser.prototype.free = function() {};
   HTTPParser.prototype._compatMode0_11 = false;
   HTTPParser.prototype.getAsyncId = function() {
     return 0;
@@ -46716,8 +46642,7 @@ var require_index_standalone = __commonJS((exports) => {
       this.userCall()(this[kOnMessageComplete]());
     }
   };
-  HTTPParser.prototype.consume = HTTPParser.prototype.unconsume = HTTPParser.prototype.getCurrentBuffer = function() {
-  };
+  HTTPParser.prototype.consume = HTTPParser.prototype.unconsume = HTTPParser.prototype.getCurrentBuffer = function() {};
   HTTPParser.prototype.userCall = function() {
     this.isUserCall = true;
     var self2 = this;
@@ -47511,8 +47436,7 @@ var require_index_standalone = __commonJS((exports) => {
     Extensions$1.prototype[key$a] = instance$a[key$a];
   var key$a;
   var websocket_extensions = Extensions$1;
-  var Frame$1 = function() {
-  };
+  var Frame$1 = function() {};
   var instance$9 = {
     final: false,
     rsv1: false,
@@ -47934,8 +47858,7 @@ var require_index_standalone = __commonJS((exports) => {
         var string = buffer.toString("binary", 0, buffer.length);
         if (!this.UTF8_MATCH.test(string))
           return null;
-      } catch (e) {
-      }
+      } catch (e) {}
       return buffer.toString("utf8", 0, buffer.length);
     },
     _readUInt: function(buffer) {
@@ -48347,10 +48270,8 @@ var require_index_standalone = __commonJS((exports) => {
   var instance$2 = {
     EVENTS: ["open", "message", "error", "close", "ping", "pong"],
     _bindEventListeners: function() {
-      this.messages.on("error", function() {
-      });
-      this.on("error", function() {
-      });
+      this.messages.on("error", function() {});
+      this.on("error", function() {});
     },
     parse: function(chunk) {
       if (this._delegate)
@@ -48472,10 +48393,8 @@ var require_index_standalone = __commonJS((exports) => {
     this.bubbles = canBubble;
     this.cancelable = cancelable;
   };
-  Event$3.prototype.stopPropagation = function() {
-  };
-  Event$3.prototype.preventDefault = function() {
-  };
+  Event$3.prototype.stopPropagation = function() {};
+  Event$3.prototype.preventDefault = function() {};
   Event$3.CAPTURING_PHASE = 1;
   Event$3.AT_TARGET = 2;
   Event$3.BUBBLING_PHASE = 3;
@@ -48539,8 +48458,7 @@ var require_index_standalone = __commonJS((exports) => {
     this._driver.on("error", function(error2) {
       self2._emitError(error2.message);
     });
-    this.on("error", function() {
-    });
+    this.on("error", function() {});
     this._driver.messages.on("drain", function() {
       self2.emit("drain");
     });
@@ -48987,8 +48905,7 @@ var require_index_standalone = __commonJS((exports) => {
         domStorage.removeItem("firebase:sentinel");
         return new DOMStorageWrapper(domStorage);
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     return new MemoryStorage;
   };
   var PersistentStorage = createStoragefor("localStorage");
@@ -49495,8 +49412,7 @@ var require_index_standalone = __commonJS((exports) => {
         this.onClosed_();
       };
     }
-    start() {
-    }
+    start() {}
     static forceDisallow() {
       WebSocketConnection.forceDisallow_ = true;
     }
@@ -49721,10 +49637,8 @@ var require_index_standalone = __commonJS((exports) => {
     addTokenChangeListener(listener) {
       listener(this.accessToken);
     }
-    removeTokenChangeListener(listener) {
-    }
-    notifyForInvalidToken() {
-    }
+    removeTokenChangeListener(listener) {}
+    notifyForInvalidToken() {}
   }
   EmulatorTokenProvider.OWNER = "owner";
 
@@ -49877,8 +49791,7 @@ var require_index_standalone = __commonJS((exports) => {
         }
         const connectURL = this.urlFn(urlParams);
         this.log_("Connecting via long-poll to " + connectURL);
-        this.scriptTagHolder.addTag(connectURL, () => {
-        });
+        this.scriptTagHolder.addTag(connectURL, () => {});
       });
     }
     start() {
@@ -49900,8 +49813,7 @@ var require_index_standalone = __commonJS((exports) => {
         return !BrowserPollConnection.forceDisallow_ && typeof document !== "undefined" && document.createElement != null && !isChromeExtensionContentScript() && !isWindowsStoreApp();
       }
     }
-    markConnectionHealthy() {
-    }
+    markConnectionHealthy() {}
     shutdown_() {
       this.isClosed_ = true;
       if (this.scriptTagHolder) {
@@ -50046,8 +49958,7 @@ var require_index_standalone = __commonJS((exports) => {
       this.myID = id;
       this.myPW = pw;
       this.alive = true;
-      while (this.newRequest_()) {
-      }
+      while (this.newRequest_()) {}
     }
     newRequest_() {
       if (this.alive && this.sendNewPolls && this.outstandingRequests.size < (this.pendingSegs.length > 0 ? 2 : 1)) {
@@ -50124,8 +50035,7 @@ var require_index_standalone = __commonJS((exports) => {
               this.close();
             };
             this.myIFrame.doc.body.appendChild(newScript);
-          } catch (e) {
-          }
+          } catch (e) {}
         }, Math.floor(1));
       }
     }
@@ -50521,22 +50431,14 @@ var require_index_standalone = __commonJS((exports) => {
   }
 
   class ServerActions {
-    put(pathString, data, onComplete, hash) {
-    }
-    merge(pathString, data, onComplete, hash) {
-    }
-    refreshAuthToken(token) {
-    }
-    refreshAppCheckToken(token) {
-    }
-    onDisconnectPut(pathString, data, onComplete) {
-    }
-    onDisconnectMerge(pathString, data, onComplete) {
-    }
-    onDisconnectCancel(pathString, onComplete) {
-    }
-    reportStats(stats) {
-    }
+    put(pathString, data, onComplete, hash) {}
+    merge(pathString, data, onComplete, hash) {}
+    refreshAuthToken(token) {}
+    refreshAppCheckToken(token) {}
+    onDisconnectPut(pathString, data, onComplete) {}
+    onDisconnectMerge(pathString, data, onComplete) {}
+    onDisconnectCancel(pathString, onComplete) {}
+    reportStats(stats) {}
   }
 
   class EventEmitter {
@@ -51010,8 +50912,7 @@ var require_index_standalone = __commonJS((exports) => {
         this.tryAuth();
       } else {
         if (this.connected_) {
-          this.sendRequest("unauth", {}, () => {
-          });
+          this.sendRequest("unauth", {}, () => {});
         }
       }
       this.reduceReconnectDelayIfAdminCredential_(token);
@@ -51030,8 +50931,7 @@ var require_index_standalone = __commonJS((exports) => {
         this.tryAppCheck();
       } else {
         if (this.connected_) {
-          this.sendRequest("unappeck", {}, () => {
-          });
+          this.sendRequest("unappeck", {}, () => {});
         }
       }
     }
@@ -53400,8 +53300,7 @@ FIREBASE: `));
       });
       return deferred.promise;
     }
-    refreshAuthToken(token) {
-    }
+    refreshAuthToken(token) {}
     restRequest_(pathString, queryStringParameters = {}, callback) {
       queryStringParameters["format"] = "export";
       return Promise.all([
@@ -55831,8 +55730,7 @@ FIREBASE: `));
         }
         return infoEvents;
       },
-      stopListening: () => {
-      }
+      stopListening: () => {}
     });
     repoUpdateInfo(repo, "connected", false);
     repo.serverSyncTree_ = new SyncTree({
@@ -56412,8 +56310,7 @@ FIREBASE: `));
         let piece = pieces[i];
         try {
           piece = decodeURIComponent(piece.replace(/\+/g, " "));
-        } catch (e) {
-        }
+        } catch (e) {}
         pathStringDecoded += "/" + piece;
       }
     }
@@ -56615,23 +56512,20 @@ FIREBASE: `));
     }
     cancel() {
       const deferred = new util.Deferred;
-      repoOnDisconnectCancel(this._repo, this._path, deferred.wrapCallback(() => {
-      }));
+      repoOnDisconnectCancel(this._repo, this._path, deferred.wrapCallback(() => {}));
       return deferred.promise;
     }
     remove() {
       validateWritablePath("OnDisconnect.remove", this._path);
       const deferred = new util.Deferred;
-      repoOnDisconnectSet(this._repo, this._path, null, deferred.wrapCallback(() => {
-      }));
+      repoOnDisconnectSet(this._repo, this._path, null, deferred.wrapCallback(() => {}));
       return deferred.promise;
     }
     set(value) {
       validateWritablePath("OnDisconnect.set", this._path);
       validateFirebaseDataArg("OnDisconnect.set", value, this._path, false);
       const deferred = new util.Deferred;
-      repoOnDisconnectSet(this._repo, this._path, value, deferred.wrapCallback(() => {
-      }));
+      repoOnDisconnectSet(this._repo, this._path, value, deferred.wrapCallback(() => {}));
       return deferred.promise;
     }
     setWithPriority(value, priority) {
@@ -56639,16 +56533,14 @@ FIREBASE: `));
       validateFirebaseDataArg("OnDisconnect.setWithPriority", value, this._path, false);
       validatePriority("OnDisconnect.setWithPriority", priority, false);
       const deferred = new util.Deferred;
-      repoOnDisconnectSetWithPriority(this._repo, this._path, value, priority, deferred.wrapCallback(() => {
-      }));
+      repoOnDisconnectSetWithPriority(this._repo, this._path, value, priority, deferred.wrapCallback(() => {}));
       return deferred.promise;
     }
     update(values) {
       validateWritablePath("OnDisconnect.update", this._path);
       validateFirebaseMergeDataArg("OnDisconnect.update", values, this._path, false);
       const deferred = new util.Deferred;
-      repoOnDisconnectUpdate(this._repo, this._path, values, deferred.wrapCallback(() => {
-      }));
+      repoOnDisconnectUpdate(this._repo, this._path, values, deferred.wrapCallback(() => {}));
       return deferred.promise;
     }
   }
@@ -56871,8 +56763,7 @@ FIREBASE: `));
     validateWritablePath("set", ref2._path);
     validateFirebaseDataArg("set", value, ref2._path, false);
     const deferred = new util.Deferred;
-    repoSetWithPriority(ref2._repo, ref2._path, value, null, deferred.wrapCallback(() => {
-    }));
+    repoSetWithPriority(ref2._repo, ref2._path, value, null, deferred.wrapCallback(() => {}));
     return deferred.promise;
   }
   function setPriority(ref2, priority) {
@@ -56880,8 +56771,7 @@ FIREBASE: `));
     validateWritablePath("setPriority", ref2._path);
     validatePriority("setPriority", priority, false);
     const deferred = new util.Deferred;
-    repoSetWithPriority(ref2._repo, pathChild(ref2._path, ".priority"), priority, null, deferred.wrapCallback(() => {
-    }));
+    repoSetWithPriority(ref2._repo, pathChild(ref2._path, ".priority"), priority, null, deferred.wrapCallback(() => {}));
     return deferred.promise;
   }
   function setWithPriority(ref2, value, priority) {
@@ -56892,21 +56782,18 @@ FIREBASE: `));
       throw "setWithPriority failed: " + ref2.key + " is a read-only object.";
     }
     const deferred = new util.Deferred;
-    repoSetWithPriority(ref2._repo, ref2._path, value, priority, deferred.wrapCallback(() => {
-    }));
+    repoSetWithPriority(ref2._repo, ref2._path, value, priority, deferred.wrapCallback(() => {}));
     return deferred.promise;
   }
   function update(ref2, values) {
     validateFirebaseMergeDataArg("update", values, ref2._path, false);
     const deferred = new util.Deferred;
-    repoUpdate(ref2._repo, ref2._path, values, deferred.wrapCallback(() => {
-    }));
+    repoUpdate(ref2._repo, ref2._path, values, deferred.wrapCallback(() => {}));
     return deferred.promise;
   }
   function get(query2) {
     query2 = util.getModularInstance(query2);
-    const callbackContext = new CallbackContext(() => {
-    });
+    const callbackContext = new CallbackContext(() => {});
     const container = new ValueEventRegistration(callbackContext);
     return repoGetValue(query2._repo, query2, container).then((node) => {
       return new DataSnapshot$1(node, new ReferenceImpl(query2._repo, query2._path), query2._queryParams.getIndex());
@@ -57474,8 +57361,7 @@ FIREBASE: `));
         deferred.resolve(new TransactionResult$1(committed, dataSnapshot));
       }
     };
-    const unwatcher = onValue(ref2, () => {
-    });
+    const unwatcher = onValue(ref2, () => {});
     repoStartTransaction(ref2._repo, ref2._path, transactionUpdate, promiseComplete, unwatcher, applyLocally);
     return deferred.promise;
   }
@@ -57768,8 +57654,7 @@ FIREBASE: `));
       require$$1$3.validateCallback("Query.off", "callback", callback, true);
       require$$1$3.validateContextObject("Query.off", "context", context, true);
       if (callback) {
-        const valueCallback = () => {
-        };
+        const valueCallback = () => {};
         valueCallback.userCallback = callback;
         valueCallback.context = context;
         off_1(this._delegate, eventType, valueCallback);
@@ -59172,8 +59057,7 @@ var require_v352 = __commonJS((exports) => {
     }
     try {
       generateUUID.name = name;
-    } catch (err) {
-    }
+    } catch (err) {}
     generateUUID.DNS = DNS;
     generateUUID.URL = URL2;
     return generateUUID;
@@ -59571,8 +59455,7 @@ var require_lib3 = __commonJS((exports) => {
 var require_retry_request = __commonJS((exports, module) => {
   var { PassThrough } = __require("stream");
   var extend = require_extend();
-  var debug = () => {
-  };
+  var debug = () => {};
   if (typeof process !== "undefined" && "env" in process && typeof process.env === "object" && process.env.DEBUG === "retry-request") {
     debug = (message2) => {
       console.log("retry-request:", message2);
@@ -59995,8 +59878,7 @@ var require_v353 = __commonJS((exports) => {
     }
     try {
       generateUUID.name = name;
-    } catch (err) {
-    }
+    } catch (err) {}
     generateUUID.DNS = DNS;
     generateUUID.URL = URL2;
     return generateUUID;
@@ -61155,8 +61037,7 @@ var require_stubs = __commonJS((exports, module) => {
       stub = cfg;
       cfg = {};
     }
-    stub = stub || function() {
-    };
+    stub = stub || function() {};
     cfg.callthrough = cfg.callthrough || false;
     cfg.calls = cfg.calls || 0;
     var norevert = cfg.calls === 0;
@@ -61320,12 +61201,10 @@ Content-Type: ${part["Content-Type"]}\r
       let responseStream;
       requestStream.once("reading", () => {
         if (responseStream) {
-          (0, stream_1.pipeline)(responseStream, requestStream, () => {
-          });
+          (0, stream_1.pipeline)(responseStream, requestStream, () => {});
         } else {
           requestStream.once("response", () => {
-            (0, stream_1.pipeline)(responseStream, requestStream, () => {
-            });
+            (0, stream_1.pipeline)(responseStream, requestStream, () => {});
           });
         }
       });
@@ -62223,8 +62102,7 @@ var require_inherits_browser = __commonJS((exports, module) => {
     module.exports = function inherits(ctor, superCtor) {
       if (superCtor) {
         ctor.super_ = superCtor;
-        var TempCtor = function() {
-        };
+        var TempCtor = function() {};
         TempCtor.prototype = superCtor.prototype;
         ctor.prototype = new TempCtor;
         ctor.prototype.constructor = ctor;
@@ -62269,8 +62147,7 @@ var require__stream_writable = __commonJS((exports, module) => {
   };
   var Stream = __require("stream");
   var Buffer2 = __require("buffer").Buffer;
-  var OurUint8Array = (typeof global !== "undefined" ? global : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : {}).Uint8Array || function() {
-  };
+  var OurUint8Array = (typeof global !== "undefined" ? global : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : {}).Uint8Array || function() {};
   function _uint8ArrayToBuffer(chunk) {
     return Buffer2.from(chunk);
   }
@@ -62291,8 +62168,7 @@ var require__stream_writable = __commonJS((exports, module) => {
   var ERR_UNKNOWN_ENCODING = _require$codes.ERR_UNKNOWN_ENCODING;
   var errorOrDestroy = destroyImpl.errorOrDestroy;
   require_inherits()(Writable, Stream);
-  function nop() {
-  }
+  function nop() {}
   function WritableState(options, stream, isDuplex) {
     Duplex = Duplex || require__stream_duplex();
     options = options || {};
@@ -62347,8 +62223,7 @@ var require__stream_writable = __commonJS((exports, module) => {
           return this.getBuffer();
         }, "_writableState.buffer is deprecated. Use _writableState.getBuffer " + "instead.", "DEP0003")
       });
-    } catch (_) {
-    }
+    } catch (_) {}
   })();
   var realHasInstance;
   if (typeof Symbol === "function" && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === "function") {
@@ -63092,8 +62967,7 @@ var require_end_of_stream = __commonJS((exports, module) => {
       callback.apply(this, args);
     };
   }
-  function noop() {
-  }
+  function noop() {}
   function isRequest(stream) {
     return stream.setHeader && typeof stream.abort === "function";
   }
@@ -63243,8 +63117,7 @@ var require_async_iterator = __commonJS((exports, module) => {
       }, reject);
     };
   }
-  var AsyncIteratorPrototype = Object.getPrototypeOf(function() {
-  });
+  var AsyncIteratorPrototype = Object.getPrototypeOf(function() {});
   var ReadableStreamAsyncIteratorPrototype = Object.setPrototypeOf((_Object$setPrototypeO = {
     get stream() {
       return this[kStream];
@@ -63491,8 +63364,7 @@ var require__stream_readable = __commonJS((exports, module) => {
   };
   var Stream = __require("stream");
   var Buffer2 = __require("buffer").Buffer;
-  var OurUint8Array = (typeof global !== "undefined" ? global : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : {}).Uint8Array || function() {
-  };
+  var OurUint8Array = (typeof global !== "undefined" ? global : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : {}).Uint8Array || function() {};
   function _uint8ArrayToBuffer(chunk) {
     return Buffer2.from(chunk);
   }
@@ -63504,8 +63376,7 @@ var require__stream_readable = __commonJS((exports, module) => {
   if (debugUtil && debugUtil.debuglog) {
     debug = debugUtil.debuglog("stream");
   } else {
-    debug = function debug() {
-    };
+    debug = function debug() {};
   }
   var BufferList = require_buffer_list();
   var destroyImpl = require_destroy();
@@ -64569,8 +64440,7 @@ var require_once = __commonJS((exports, module) => {
 // node_modules/end-of-stream/index.js
 var require_end_of_stream2 = __commonJS((exports, module) => {
   var once = require_once();
-  var noop = function() {
-  };
+  var noop = function() {};
   var isRequest = function(stream) {
     return stream.setHeader && typeof stream.abort === "function";
   };
@@ -64716,8 +64586,7 @@ var require_duplexify = __commonJS((exports, module) => {
     ws.end();
     fn();
   };
-  var noop = function() {
-  };
+  var noop = function() {};
   var toStreams2 = function(rs) {
     return new stream.Readable({ objectMode: true, highWaterMark: 16 }).wrap(rs);
   };
@@ -65065,8 +64934,7 @@ var require_util5 = __commonJS((exports) => {
       this.ApiError = ApiError;
       this.PartialFailureError = PartialFailureError;
     }
-    noop() {
-    }
+    noop() {}
     handleResp(err, resp, body, callback) {
       callback = callback || util.noop;
       const parsedResp = {
@@ -66331,8 +66199,7 @@ var require_p_limit = __commonJS((exports, module) => {
       resolve(result);
       try {
         await result;
-      } catch {
-      }
+      } catch {}
       next();
     };
     const enqueue = (fn, resolve, ...args) => {
@@ -67013,8 +66880,7 @@ var require_resumable_upload = __commonJS((exports) => {
         }
       });
     }
-    _final(fireFinishEvent = () => {
-    }) {
+    _final(fireFinishEvent = () => {}) {
       this.upstreamEnded = true;
       this.once("uploadFinished", fireFinishEvent);
       process.nextTick(() => {
@@ -67022,8 +66888,7 @@ var require_resumable_upload = __commonJS((exports) => {
         this.emit("writing");
       });
     }
-    _write(chunk, encoding, readCallback = () => {
-    }) {
+    _write(chunk, encoding, readCallback = () => {}) {
       this.emit("writing");
       this.writeBuffers.push(typeof chunk === "string" ? Buffer.from(chunk, encoding) : chunk);
       this.once("readFromChunkBuffer", readCallback);
@@ -67215,8 +67080,7 @@ var require_resumable_upload = __commonJS((exports) => {
       }
       if (this.numBytesWritten < this.offset) {
         const fastForwardBytes = this.offset - this.numBytesWritten;
-        for await (const _chunk of this.upstreamIterator(fastForwardBytes)) {
-        }
+        for await (const _chunk of this.upstreamIterator(fastForwardBytes)) {}
         this.numBytesWritten = this.offset;
       }
       let expectedUploadSize = undefined;
@@ -71119,8 +70983,7 @@ var require_validator2 = __commonJS((exports) => {
             }
             if (reachedRoot === true) {
               return getErrorObject("InvalidXml", "Multiple possible root nodes found.", getLineNumberForPosition(xmlData, i));
-            } else if (options.unpairedTags.indexOf(tagName) !== -1) {
-            } else {
+            } else if (options.unpairedTags.indexOf(tagName) !== -1) {} else {
               tags.push({ tagName, tagStartPos });
             }
             tagFound = true;
@@ -71230,8 +71093,7 @@ var require_validator2 = __commonJS((exports) => {
       if (xmlData[i] === doubleQuote || xmlData[i] === singleQuote) {
         if (startChar === "") {
           startChar = xmlData[i];
-        } else if (startChar !== xmlData[i]) {
-        } else {
+        } else if (startChar !== xmlData[i]) {} else {
           startChar = "";
         }
       } else if (xmlData[i] === ">") {
@@ -71821,8 +71683,7 @@ var require_OrderedObjParser = __commonJS((exports, module) => {
           if (!tagData)
             throw new Error("Pi Tag is not closed.");
           textData = this.saveTextToParentTag(textData, currentNode, jPath);
-          if (this.options.ignoreDeclaration && tagData.tagName === "?xml" || this.options.ignorePiTags) {
-          } else {
+          if (this.options.ignoreDeclaration && tagData.tagName === "?xml" || this.options.ignorePiTags) {} else {
             const childNode = new xmlNode(tagData.tagName);
             childNode.add(this.options.textNodeName, "");
             if (tagData.tagName !== tagData.tagExp && tagData.attrExpPresent) {
@@ -71948,8 +71809,7 @@ var require_OrderedObjParser = __commonJS((exports, module) => {
   };
   function addChild(currentNode, childNode, jPath) {
     const result = this.options.updateTag(childNode.tagname, jPath, childNode[":@"]);
-    if (result === false) {
-    } else if (typeof result === "string") {
+    if (result === false) {} else if (typeof result === "string") {
       childNode.tagname = result;
       currentNode.addChild(childNode);
     } else {
@@ -72229,8 +72089,7 @@ var require_XMLParser = __commonJS((exports, module) => {
       this.options = buildOptions(options);
     }
     parse(xmlData, validationOption) {
-      if (typeof xmlData === "string") {
-      } else if (xmlData.toString) {
+      if (typeof xmlData === "string") {} else if (xmlData.toString) {
         xmlData = xmlData.toString();
       } else {
         throw new Error("XML data is accepted in String or Bytes[] form.");
@@ -72511,8 +72370,7 @@ var require_json2xml = __commonJS((exports, module) => {
         let listTagAttr = "";
         for (let j = 0;j < arrLen; j++) {
           const item = jObj[key][j];
-          if (typeof item === "undefined") {
-          } else if (item === null) {
+          if (typeof item === "undefined") {} else if (item === null) {
             if (key[0] === "?")
               val += this.indentate(level) + "<" + key + "?" + this.tagEndChar;
             else
@@ -74120,8 +73978,7 @@ var require_inquire = __commonJS((exports, module) => {
       var mod = eval("quire".replace(/^/, "re"))(moduleName);
       if (mod && (mod.length || Object.keys(mod).length))
         return mod;
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
 });
@@ -74471,8 +74328,7 @@ var require_writer = __commonJS((exports, module) => {
     this.next = undefined;
     this.val = val;
   }
-  function noop() {
-  }
+  function noop() {}
   function State(writer) {
     this.head = writer.head;
     this.tail = writer.tail;
@@ -76663,8 +76519,7 @@ var require_root = __commonJS((exports, module) => {
   };
   Root.prototype.resolvePath = util.path.resolve;
   Root.prototype.fetch = util.fetch;
-  function SYNC() {
-  }
+  function SYNC() {}
   Root.prototype.load = function load(filename, options, callback) {
     if (typeof options === "function") {
       callback = options;
@@ -78635,8 +78490,7 @@ var require_v354 = __commonJS((exports) => {
     }
     try {
       generateUUID.name = name;
-    } catch (err) {
-    }
+    } catch (err) {}
     generateUUID.DNS = DNS;
     generateUUID.URL = URL2;
     return generateUUID;
@@ -79984,8 +79838,7 @@ var require_googleError = __commonJS((exports) => {
             err.errorInfoMetadata = statusDetailsObj.errorInfo.metadata;
           }
         }
-      } catch (decodeErr) {
-      }
+      } catch (decodeErr) {}
       return err;
     }
     static parseHttpError(json) {
@@ -80020,8 +79873,7 @@ var require_googleError = __commonJS((exports) => {
             error.domain = statusDetailsObj.errorInfo.domain;
             error.errorInfoMetadata = statusDetailsObj.errorInfo.metadata;
           }
-        } catch (decodeErr) {
-        }
+        } catch (decodeErr) {}
       }
       return error;
     }
@@ -80059,8 +79911,7 @@ var require_googleError = __commonJS((exports) => {
           if (detail.type_url === "type.googleapis.com/google.rpc.ErrorInfo") {
             errorInfo = decodedDetail;
           }
-        } catch (err) {
-        }
+        } catch (err) {}
       }
       const result = {
         code: status.code,
@@ -80092,8 +79943,7 @@ var require_googleError = __commonJS((exports) => {
             if (detail.type_url === "type.googleapis.com/google.rpc.ErrorInfo") {
               errorInfo = decodedDetail;
             }
-          } catch (err) {
-          }
+          } catch (err) {}
         }
       });
       const result = {
@@ -80119,8 +79969,7 @@ var require_googleError = __commonJS((exports) => {
           if (detail.type_url === "type.googleapis.com/google.rpc.ErrorInfo") {
             errorInfo = decodedDetail;
           }
-        } catch (err) {
-        }
+        } catch (err) {}
       }
       return { details, errorInfo };
     }
@@ -85116,8 +84965,7 @@ var require_bundleExecutor = __commonJS((exports) => {
   var warnings_1 = require_warnings();
   var bundlingUtils_1 = require_bundlingUtils();
   var task_1 = require_task();
-  function noop() {
-  }
+  function noop() {}
 
   class BundleExecutor {
     constructor(bundleOptions, bundleDescriptor) {
@@ -86011,8 +85859,7 @@ var require_fallbackServiceStub = __commonJS((exports) => {
     const fetch2 = (0, featureDetection_1.hasWindowFetch)() ? window.fetch : node_fetch_1.default;
     const serviceStub = {
       close: () => {
-        return { cancel: () => {
-        } };
+        return { cancel: () => {} };
       }
     };
     for (const [rpcName, rpc] of Object.entries(rpcs)) {
@@ -86026,8 +85873,7 @@ var require_fallbackServiceStub = __commonJS((exports) => {
             callback(err);
           }
           return {
-            cancel() {
-            }
+            cancel() {}
           };
         }
         const cancelController = (0, featureDetection_1.hasAbortController)() ? new AbortController : new abort_controller_1.AbortController;
@@ -94218,10 +94064,8 @@ var require_util10 = __commonJS((exports) => {
 
   class Deferred {
     constructor() {
-      this.resolve = () => {
-      };
-      this.reject = () => {
-      };
+      this.resolve = () => {};
+      this.reject = () => {};
       this.promise = new Promise((resolve, reject) => {
         this.resolve = resolve;
         this.reject = reject;
@@ -94286,9 +94130,7 @@ var require_util10 = __commonJS((exports) => {
     return (_c = (_b = (_a = getServiceConfig(methodName)) === null || _a === undefined ? undefined : _a.retry) === null || _b === undefined ? undefined : _b.backoffSettings) !== null && _c !== undefined ? _c : require_fallback().createDefaultBackoffSettings();
   }
   function silencePromise(promise) {
-    return promise.then(() => {
-    }, () => {
-    });
+    return promise.then(() => {}, () => {});
   }
   function wrapError(err, stack) {
     err.stack += `
@@ -95763,16 +95605,13 @@ var require_serializer = __commonJS((exports) => {
       } else if (!options.allowUndefined) {
         throw new Error(`${(0, validate_1.invalidArgumentMessage)(arg, desc)} Cannot use "undefined" as a Firestore value${fieldPathMessage}. ` + "If you want to ignore undefined values, enable `ignoreUndefinedProperties`.");
       }
-    } else if (value instanceof field_value_1.VectorValue) {
-    } else if (value instanceof field_value_1.DeleteTransform) {
+    } else if (value instanceof field_value_1.VectorValue) {} else if (value instanceof field_value_1.DeleteTransform) {
       if (inArray) {
         throw new Error(`${(0, validate_1.invalidArgumentMessage)(arg, desc)} ${value.methodName}() cannot be used inside of an array${fieldPathMessage}.`);
       } else if (options.allowDeletes === "none") {
         throw new Error(`${(0, validate_1.invalidArgumentMessage)(arg, desc)} ${value.methodName}() must appear at the top-level and can only be used in update() ` + `or set() with {merge:true}${fieldPathMessage}.`);
       } else if (options.allowDeletes === "root") {
-        if (level === 0) {
-        } else if (level === 1 && (path === null || path === undefined ? undefined : path.size) === 1) {
-        } else {
+        if (level === 0) {} else if (level === 1 && (path === null || path === undefined ? undefined : path.size) === 1) {} else {
           throw new Error(`${(0, validate_1.invalidArgumentMessage)(arg, desc)} ${value.methodName}() must appear at the top-level and can only be used in update() ` + `or set() with {merge:true}${fieldPathMessage}.`);
         }
       }
@@ -95784,13 +95623,7 @@ var require_serializer = __commonJS((exports) => {
       }
     } else if (value instanceof path_1.FieldPath) {
       throw new Error(`${(0, validate_1.invalidArgumentMessage)(arg, desc)} Cannot use object of type "FieldPath" as a Firestore value${fieldPathMessage}.`);
-    } else if (value instanceof index_1.DocumentReference) {
-    } else if (value instanceof geo_point_1.GeoPoint) {
-    } else if (value instanceof timestamp_1.Timestamp || value instanceof Date) {
-    } else if (isMomentJsType(value)) {
-    } else if (value instanceof Buffer || value instanceof Uint8Array) {
-    } else if (value === null) {
-    } else if (typeof value === "object") {
+    } else if (value instanceof index_1.DocumentReference) {} else if (value instanceof geo_point_1.GeoPoint) {} else if (value instanceof timestamp_1.Timestamp || value instanceof Date) {} else if (isMomentJsType(value)) {} else if (value instanceof Buffer || value instanceof Uint8Array) {} else if (value === null) {} else if (typeof value === "object") {
       throw new Error((0, validate_1.customObjectMessage)(arg, value, path));
     }
   }
@@ -95847,8 +95680,7 @@ var require_field_value = __commonJS((exports) => {
   exports.VectorValue = VectorValue;
 
   class FieldValue {
-    constructor() {
-    }
+    constructor() {}
     static vector(values) {
       return new VectorValue(values);
     }
@@ -95893,8 +95725,7 @@ var require_field_value = __commonJS((exports) => {
     get methodName() {
       return "FieldValue.delete";
     }
-    validate() {
-    }
+    validate() {}
     toProto() {
       throw new Error("FieldValue.delete() should not be included in a FieldTransform");
     }
@@ -95915,8 +95746,7 @@ var require_field_value = __commonJS((exports) => {
     get methodName() {
       return "FieldValue.serverTimestamp";
     }
-    validate() {
-    }
+    validate() {}
     toProto(serializer, fieldPath) {
       return {
         fieldPath: fieldPath.formattedName,
@@ -98974,10 +98804,8 @@ var require_channel_credentials = __commonJS((exports) => {
     _getCallCredentials() {
       return this.callCredentials;
     }
-    _ref() {
-    }
-    _unref() {
-    }
+    _ref() {}
+    _unref() {}
     static createSsl(rootCerts, privateKey, certChain, verifyOptions) {
       var _a;
       verifyIsBufferOrNull(rootCerts, "Root certificate");
@@ -99853,8 +99681,7 @@ var require_backoff_timeout = __commonJS((exports) => {
         }
       }
       this.nextDelay = this.initialDelay;
-      this.timerId = setTimeout(() => {
-      }, 0);
+      this.timerId = setTimeout(() => {}, 0);
       clearTimeout(this.timerId);
     }
     runTimer(delay) {
@@ -101692,12 +101519,9 @@ var require_client_interceptors = __commonJS((exports) => {
     start(metadata, interceptingListener) {
       var _a, _b, _c, _d, _e, _f;
       const fullInterceptingListener = {
-        onReceiveMetadata: (_b = (_a = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveMetadata) === null || _a === undefined ? undefined : _a.bind(interceptingListener)) !== null && _b !== undefined ? _b : (metadata2) => {
-        },
-        onReceiveMessage: (_d = (_c = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveMessage) === null || _c === undefined ? undefined : _c.bind(interceptingListener)) !== null && _d !== undefined ? _d : (message2) => {
-        },
-        onReceiveStatus: (_f = (_e = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveStatus) === null || _e === undefined ? undefined : _e.bind(interceptingListener)) !== null && _f !== undefined ? _f : (status) => {
-        }
+        onReceiveMetadata: (_b = (_a = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveMetadata) === null || _a === undefined ? undefined : _a.bind(interceptingListener)) !== null && _b !== undefined ? _b : (metadata2) => {},
+        onReceiveMessage: (_d = (_c = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveMessage) === null || _c === undefined ? undefined : _c.bind(interceptingListener)) !== null && _d !== undefined ? _d : (message2) => {},
+        onReceiveStatus: (_f = (_e = interceptingListener === null || interceptingListener === undefined ? undefined : interceptingListener.onReceiveStatus) === null || _e === undefined ? undefined : _e.bind(interceptingListener)) !== null && _f !== undefined ? _f : (status) => {}
       };
       this.processingMetadata = true;
       this.requester.start(metadata, fullInterceptingListener, (md, listener) => {
@@ -101836,8 +101660,7 @@ var require_client_interceptors = __commonJS((exports) => {
       var _a, _b;
       let receivedMessage = false;
       const wrapperListener = {
-        onReceiveMetadata: (_b = (_a = listener === null || listener === undefined ? undefined : listener.onReceiveMetadata) === null || _a === undefined ? undefined : _a.bind(listener)) !== null && _b !== undefined ? _b : (metadata2) => {
-        },
+        onReceiveMetadata: (_b = (_a = listener === null || listener === undefined ? undefined : listener.onReceiveMetadata) === null || _a === undefined ? undefined : _a.bind(listener)) !== null && _b !== undefined ? _b : (metadata2) => {},
         onReceiveMessage: (message2) => {
           var _a2;
           receivedMessage = true;
@@ -104369,8 +104192,7 @@ var require_umd = __commonJS((exports, module) => {
     var wasm = null;
     try {
       wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 13, 2, 96, 0, 1, 127, 96, 4, 127, 127, 127, 127, 1, 127, 3, 7, 6, 0, 1, 1, 1, 1, 1, 6, 6, 1, 127, 1, 65, 0, 11, 7, 50, 6, 3, 109, 117, 108, 0, 1, 5, 100, 105, 118, 95, 115, 0, 2, 5, 100, 105, 118, 95, 117, 0, 3, 5, 114, 101, 109, 95, 115, 0, 4, 5, 114, 101, 109, 95, 117, 0, 5, 8, 103, 101, 116, 95, 104, 105, 103, 104, 0, 0, 10, 191, 1, 6, 4, 0, 35, 0, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 126, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 127, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 128, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 129, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 130, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11])), {}).exports;
-    } catch (e) {
-    }
+    } catch (e) {}
     function Long2(low, high, unsigned) {
       this.low = low | 0;
       this.high = high | 0;
@@ -105162,8 +104984,7 @@ var require_channelz = __commonJS((exports) => {
       this.creationTimestamp = new Date;
       this.eventsLogged = 0;
     }
-    addTrace() {
-    }
+    addTrace() {}
     getTraceMessage() {
       return {
         creation_timestamp: dateToProtoTimestamp(this.creationTimestamp),
@@ -105256,10 +105077,8 @@ var require_channelz = __commonJS((exports) => {
   exports.ChannelzChildrenTracker = ChannelzChildrenTracker;
 
   class ChannelzChildrenTrackerStub extends ChannelzChildrenTracker {
-    refChild() {
-    }
-    unrefChild() {
-    }
+    refChild() {}
+    unrefChild() {}
   }
   exports.ChannelzChildrenTrackerStub = ChannelzChildrenTrackerStub;
 
@@ -105284,12 +105103,9 @@ var require_channelz = __commonJS((exports) => {
   exports.ChannelzCallTracker = ChannelzCallTracker;
 
   class ChannelzCallTrackerStub extends ChannelzCallTracker {
-    addCallStarted() {
-    }
-    addCallSucceeded() {
-    }
-    addCallFailed() {
-    }
+    addCallStarted() {}
+    addCallSucceeded() {}
+    addCallFailed() {}
   }
   exports.ChannelzCallTrackerStub = ChannelzCallTrackerStub;
   var entityMaps = {
@@ -105883,10 +105699,8 @@ var require_subchannel = __commonJS((exports) => {
     isHealthy() {
       return true;
     }
-    addHealthStateWatcher(listener) {
-    }
-    removeHealthStateWatcher(listener) {
-    }
+    addHealthStateWatcher(listener) {}
+    removeHealthStateWatcher(listener) {}
     getRealSubchannel() {
       return this;
     }
@@ -105996,8 +105810,7 @@ var require_resolver_dns = __commonJS((exports) => {
       }, backoffOptions);
       this.backoff.unref();
       this.minTimeBetweenResolutionsMs = (_c = channelOptions["grpc.dns_min_time_between_resolutions_ms"]) !== null && _c !== undefined ? _c : DEFAULT_MIN_TIME_BETWEEN_RESOLUTIONS_MS;
-      this.nextResolutionTimer = setTimeout(() => {
-      }, 0);
+      this.nextResolutionTimer = setTimeout(() => {}, 0);
       clearTimeout(this.nextResolutionTimer);
     }
     startResolution() {
@@ -106077,8 +105890,7 @@ var require_resolver_dns = __commonJS((exports) => {
             if (this.latestLookupResult !== null) {
               this.listener.onSuccessfulResolution(this.latestLookupResult, this.latestServiceConfig, this.latestServiceConfigError, null, {});
             }
-          }, (err) => {
-          });
+          }, (err) => {});
         }
       }
     }
@@ -108142,8 +107954,7 @@ var require_resolving_call = __commonJS((exports) => {
       this.metadata = null;
       this.listener = null;
       this.statusWatchers = [];
-      this.deadlineTimer = setTimeout(() => {
-      }, 0);
+      this.deadlineTimer = setTimeout(() => {}, 0);
       this.filterStack = null;
       this.deadlineStartTime = null;
       this.configReceivedTime = null;
@@ -109162,8 +108973,7 @@ var require_internal_channel = __commonJS((exports) => {
       if (defaultSchemeMapResult === null) {
         throw new Error(`Could not find a default scheme for target name "${target}"`);
       }
-      this.callRefTimer = setInterval(() => {
-      }, MAX_TIMEOUT_TIME);
+      this.callRefTimer = setInterval(() => {}, MAX_TIMEOUT_TIME);
       (_b = (_a = this.callRefTimer).unref) === null || _b === undefined || _b.call(_a);
       if (this.options["grpc.enable_channelz"] === 0) {
         this.channelzEnabled = false;
@@ -110223,8 +110033,7 @@ var require_server_interceptors = __commonJS((exports) => {
     onReceiveHalfClose: (next) => {
       next();
     },
-    onCancel: () => {
-    }
+    onCancel: () => {}
   };
   var defaultResponder = {
     start: (next) => {
@@ -110373,8 +110182,7 @@ var require_server_interceptors = __commonJS((exports) => {
       this.isReadPending = false;
       this.receivedHalfClose = false;
       this.streamEnded = false;
-      this.stream.once("error", (err) => {
-      });
+      this.stream.once("error", (err) => {});
       this.stream.once("close", () => {
         var _a2;
         trace("Request to method " + ((_a2 = this.handler) === null || _a2 === undefined ? undefined : _a2.path) + " stream closed with rstCode " + this.stream.rstCode);
@@ -110811,8 +110619,7 @@ var require_server = __commonJS((exports) => {
   var { HTTP2_HEADER_PATH } = http2.constants;
   var TRACER_NAME = "server";
   var kMaxAge = Buffer.from("max_age");
-  function noop() {
-  }
+  function noop() {}
   function deprecate(message2) {
     return function(target, context) {
       return util.deprecate(target, message2);
@@ -111155,8 +110962,7 @@ var require_server = __commonJS((exports) => {
         return new Promise((resolve, reject) => {
           const resolverListener = {
             onSuccessfulResolution: (endpointList, serviceConfig, serviceConfigError) => {
-              resolverListener.onSuccessfulResolution = () => {
-              };
+              resolverListener.onSuccessfulResolution = () => {};
               const addressList = [].concat(...endpointList.map((endpoint) => endpoint.addresses));
               if (addressList.length === 0) {
                 reject(new Error(`No addresses resolved for port ${port}`));
@@ -112313,8 +112119,7 @@ var require_load_balancer_pick_first = __commonJS((exports) => {
       this.stickyTransientFailureMode = false;
       this.lastError = null;
       this.latestAddressList = null;
-      this.connectionDelayTimeout = setTimeout(() => {
-      }, 0);
+      this.connectionDelayTimeout = setTimeout(() => {}, 0);
       clearTimeout(this.connectionDelayTimeout);
       this.reportHealthStatus = options[REPORT_HEALTH_STATUS_OPTION_NAME];
     }
@@ -112508,8 +112313,7 @@ var require_load_balancer_pick_first = __commonJS((exports) => {
         this.connectToAddressList(this.latestAddressList);
       }
     }
-    resetBackoff() {
-    }
+    resetBackoff() {}
     destroy() {
       this.resetSubchannelList();
       this.removeCurrentPick();
@@ -112946,8 +112750,7 @@ var require_load_balancer_round_robin = __commonJS((exports) => {
     getLoadBalancerName() {
       return TYPE_NAME;
     }
-    constructor() {
-    }
+    constructor() {}
     toJsonObject() {
       return {
         [TYPE_NAME]: {}
@@ -113054,10 +112857,8 @@ var require_load_balancer_round_robin = __commonJS((exports) => {
       this.updatesPaused = false;
       this.calculateAndUpdateState();
     }
-    exitIdle() {
-    }
-    resetBackoff() {
-    }
+    exitIdle() {}
+    resetBackoff() {}
     destroy() {
       this.resetSubchannelList();
     }
@@ -113339,8 +113140,7 @@ var require_load_balancer_outlier_detection = __commonJS((exports) => {
           }
         }
       }), credentials, options);
-      this.ejectionTimer = setInterval(() => {
-      }, 0);
+      this.ejectionTimer = setInterval(() => {}, 0);
       clearInterval(this.ejectionTimer);
     }
     isCountingEnabled() {
@@ -114370,8 +114170,7 @@ var require_watch = __commonJS((exports) => {
     assert(doc1 === doc2, "Document watches only support one document.");
     return 0;
   };
-  var EMPTY_FUNCTION = () => {
-  };
+  var EMPTY_FUNCTION = () => {};
 
   class Watch {
     constructor(firestore, _converter = (0, types_1.defaultConverter)()) {
@@ -114399,10 +114198,8 @@ var require_watch = __commonJS((exports) => {
       this.initStream();
       const unsubscribe = () => {
         (0, logger_1.logger)("Watch.onSnapshot", this.requestTag, "Unsubscribe called");
-        this.onNext = () => {
-        };
-        this.onError = () => {
-        };
+        this.onNext = () => {};
+        this.onError = () => {};
         this.shutdown();
       };
       this.firestore.registerListener();
@@ -116471,8 +116268,7 @@ var require_bulk_writer = __commonJS((exports) => {
       this._bufferedOperations = [];
       this._errorHandlerSet = false;
       this._maxPendingOpCount = DEFAULT_MAXIMUM_PENDING_OPERATIONS_COUNT;
-      this._successFn = () => {
-      };
+      this._successFn = () => {};
       this._errorFn = (error) => {
         const isRetryableDeleteError = error.operationType === "delete" && error.code === 13;
         const retryCodes = (0, util_1.getRetryCodes)("batchWrite");
@@ -123381,8 +123177,7 @@ var require_disabled_trace_util = __commonJS((exports) => {
     currentSpan() {
       return new span_1.Span;
     }
-    recordProjectId(projectId) {
-    }
+    recordProjectId(projectId) {}
   }
   exports.DisabledTraceUtil = DisabledTraceUtil;
 });
@@ -123635,8 +123430,7 @@ var require_logLevelLogger = __commonJS((exports) => {
       if (typeof theFunc === "function" && maxLevel >= theLevel) {
         return theFunc.bind(logger);
       }
-      return function() {
-      };
+      return function() {};
     }
     return {
       error: _filterFunc("error", types_1.DiagLogLevel.ERROR),
@@ -123861,8 +123655,7 @@ var require_NoopMeter = __commonJS((exports) => {
   exports.createNoopMeter = exports.NOOP_OBSERVABLE_UP_DOWN_COUNTER_METRIC = exports.NOOP_OBSERVABLE_GAUGE_METRIC = exports.NOOP_OBSERVABLE_COUNTER_METRIC = exports.NOOP_UP_DOWN_COUNTER_METRIC = exports.NOOP_HISTOGRAM_METRIC = exports.NOOP_GAUGE_METRIC = exports.NOOP_COUNTER_METRIC = exports.NOOP_METER = exports.NoopObservableUpDownCounterMetric = exports.NoopObservableGaugeMetric = exports.NoopObservableCounterMetric = exports.NoopObservableMetric = exports.NoopHistogramMetric = exports.NoopGaugeMetric = exports.NoopUpDownCounterMetric = exports.NoopCounterMetric = exports.NoopMetric = exports.NoopMeter = undefined;
 
   class NoopMeter {
-    constructor() {
-    }
+    constructor() {}
     createGauge(_name, _options) {
       return exports.NOOP_GAUGE_METRIC;
     }
@@ -123884,10 +123677,8 @@ var require_NoopMeter = __commonJS((exports) => {
     createObservableUpDownCounter(_name, _options) {
       return exports.NOOP_OBSERVABLE_UP_DOWN_COUNTER_METRIC;
     }
-    addBatchObservableCallback(_callback, _observables) {
-    }
-    removeBatchObservableCallback(_callback) {
-    }
+    addBatchObservableCallback(_callback, _observables) {}
+    removeBatchObservableCallback(_callback) {}
   }
   exports.NoopMeter = NoopMeter;
 
@@ -123896,34 +123687,28 @@ var require_NoopMeter = __commonJS((exports) => {
   exports.NoopMetric = NoopMetric;
 
   class NoopCounterMetric extends NoopMetric {
-    add(_value, _attributes) {
-    }
+    add(_value, _attributes) {}
   }
   exports.NoopCounterMetric = NoopCounterMetric;
 
   class NoopUpDownCounterMetric extends NoopMetric {
-    add(_value, _attributes) {
-    }
+    add(_value, _attributes) {}
   }
   exports.NoopUpDownCounterMetric = NoopUpDownCounterMetric;
 
   class NoopGaugeMetric extends NoopMetric {
-    record(_value, _attributes) {
-    }
+    record(_value, _attributes) {}
   }
   exports.NoopGaugeMetric = NoopGaugeMetric;
 
   class NoopHistogramMetric extends NoopMetric {
-    record(_value, _attributes) {
-    }
+    record(_value, _attributes) {}
   }
   exports.NoopHistogramMetric = NoopHistogramMetric;
 
   class NoopObservableMetric {
-    addCallback(_callback) {
-    }
-    removeCallback(_callback) {
-    }
+    addCallback(_callback) {}
+    removeCallback(_callback) {}
   }
   exports.NoopObservableMetric = NoopObservableMetric;
 
@@ -124028,8 +123813,7 @@ var require_context2 = __commonJS((exports) => {
   var NOOP_CONTEXT_MANAGER = new NoopContextManager_1.NoopContextManager;
 
   class ContextAPI {
-    constructor() {
-    }
+    constructor() {}
     static getInstance() {
       if (!this._instance) {
         this._instance = new ContextAPI;
@@ -124118,13 +123902,11 @@ var require_NonRecordingSpan = __commonJS((exports) => {
     updateName(_name) {
       return this;
     }
-    end(_endTime) {
-    }
+    end(_endTime) {}
     isRecording() {
       return false;
     }
-    recordException(_exception, _time) {
-    }
+    recordException(_exception, _time) {}
   }
   exports.NonRecordingSpan = NonRecordingSpan;
 });
@@ -124426,8 +124208,7 @@ var require_tracestate_impl = __commonJS((exports) => {
           const value = listMember.slice(i + 1, part.length);
           if ((0, tracestate_validators_1.validateKey)(key) && (0, tracestate_validators_1.validateValue)(value)) {
             agg.set(key, value);
-          } else {
-          }
+          } else {}
         }
         return agg;
       }, new Map);
@@ -124499,8 +124280,7 @@ var require_metrics = __commonJS((exports) => {
   var API_NAME = "metrics";
 
   class MetricsAPI {
-    constructor() {
-    }
+    constructor() {}
     static getInstance() {
       if (!this._instance) {
         this._instance = new MetricsAPI;
@@ -124537,8 +124317,7 @@ var require_NoopTextMapPropagator = __commonJS((exports) => {
   exports.NoopTextMapPropagator = undefined;
 
   class NoopTextMapPropagator {
-    inject(_context, _carrier) {
-    }
+    inject(_context, _carrier) {}
     extract(context, _carrier) {
       return context;
     }
@@ -128612,8 +128391,7 @@ var require_installations_request_handler = __commonJS((exports) => {
           timeout: this.timeout
         };
         return this.httpClient.send(req);
-      }).then(() => {
-      }).catch((err) => {
+      }).then(() => {}).catch((err) => {
         if (err instanceof api_request_1.RequestResponseError) {
           const response = err.response;
           const errorMessage = response.isJson() && "error" in response.data ? response.data.error : response.text;
@@ -131373,8 +131151,7 @@ var require_database = __commonJS((exports) => {
     scheduleTokenRefresh(delayMillis) {
       clearTimeout(this.tokenRefreshTimeout);
       this.tokenRefreshTimeout = setTimeout(() => {
-        this.firebaseApp.INTERNAL.getToken(true).catch(() => {
-        });
+        this.firebaseApp.INTERNAL.getToken(true).catch(() => {});
       }, delayMillis);
     }
     ensureUrl(url) {
@@ -131468,8 +131245,7 @@ var require_database = __commonJS((exports) => {
         if (body && body.error) {
           return `${intro}: ${body.error.trim()}`;
         }
-      } catch {
-      }
+      } catch {}
       return `${intro}: ${err.response.text}`;
     }
   }

@@ -44,15 +44,10 @@ var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 var __require = import.meta.require;
 
 // src/services/logger.service.ts
-import { join } from "path";
 class LoggerService {
-  logFile;
-  errorFile;
   timers;
+  ignorePaths = ["/favicons"];
   constructor() {
-    const today = new Date().toISOString().split("T")[0];
-    this.logFile = join("logs", `${today}.log`);
-    this.errorFile = join("logs", `${today}-error.log`);
     this.timers = new Map;
   }
   time(label) {
@@ -66,41 +61,34 @@ class LoggerService {
       this.timers.delete(label);
     }
   }
-  async writeToFile(filePath, message) {
-    try {
-      const file = Bun.file(filePath);
-      const exists = await file.exists();
-      const content = exists ? await file.text() : "";
-      await Bun.write(filePath, content + message + `
-`);
-    } catch (error) {
-      console.error(`Error writing to log file: ${error}`);
-    }
-  }
   formatMessage(level, message) {
     const timestamp = new Date().toISOString();
-    return `[${timestamp}] [${level}] ${message}`;
+    return `${timestamp} [${level}] ${message}`;
   }
-  async info(message) {
-    const formattedMessage = this.formatMessage("INFO" /* INFO */, message);
-    console.log(formattedMessage);
-    await this.writeToFile(this.logFile, formattedMessage);
+  shouldIgnorePath(path) {
+    return this.ignorePaths.some((ignorePath) => path.startsWith(ignorePath));
   }
-  async warn(message) {
-    const formattedMessage = this.formatMessage("WARN" /* WARN */, message);
-    console.warn(formattedMessage);
-    await this.writeToFile(this.logFile, formattedMessage);
+  info(message) {
+    console.log(this.formatMessage("INFO" /* INFO */, message));
   }
-  async error(message, error) {
+  warn(message) {
+    console.warn(this.formatMessage("WARN" /* WARN */, message));
+  }
+  error(message, error) {
     let errorMessage = message;
     if (error) {
       errorMessage += `
-Error details: ${error instanceof Error ? error.stack : JSON.stringify(error)}`;
+${error instanceof Error ? error.stack : JSON.stringify(error, null, 2)}`;
     }
-    const formattedMessage = this.formatMessage("ERROR" /* ERROR */, errorMessage);
-    console.error(formattedMessage);
-    await this.writeToFile(this.errorFile, formattedMessage);
-    await this.writeToFile(this.logFile, formattedMessage);
+    console.error(this.formatMessage("ERROR" /* ERROR */, errorMessage));
+  }
+  http(method, path, status, duration) {
+    if (this.shouldIgnorePath(path)) {
+      return;
+    }
+    const statusIndicator = status >= 400 ? `[${status}]` : "";
+    const message = `${method} ${path}${statusIndicator}`;
+    console.log(this.formatMessage("HTTP" /* HTTP */, message));
   }
 }
 var logger = new LoggerService;
@@ -256,7 +244,18 @@ class FaviconService {
   }
   static async downloadFavicon(url) {
     this.stats.attempted++;
-    const domain = new URL(url).origin;
+    let domain;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        logger.info(`Omitiendo favicon para protocolo no soportado: ${parsed.protocol}//`);
+        return null;
+      }
+      domain = parsed.origin;
+    } catch {
+      logger.warn(`URL no v\xE1lida, se omite el favicon: ${url}`);
+      return null;
+    }
     try {
       logger.info(`Procesando URL: ${url}`);
       logger.info(`Dominio: ${domain}`);

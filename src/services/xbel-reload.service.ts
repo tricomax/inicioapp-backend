@@ -16,11 +16,28 @@ interface BookmarkMap {
   };
 }
 
+/**
+ * Descarga el XBEL desde Google Drive y reprocesa los marcadores.
+ * Es el camino que usa el botón "Recargar XBEL".
+ */
 export async function reloadFromXBEL() {
+  logger.info("Obteniendo datos de marcadores desde Google Drive...");
+  const xmlData = await getBookmarksData();
+  return processXBELContent(xmlData);
+}
+
+/**
+ * Reprocesa los marcadores a partir de un contenido XBEL ya disponible.
+ *
+ * Se usa tanto para la recarga desde Google Drive como para la subida manual
+ * de un archivo .xbel, de forma que ambos caminos compartan exactamente la
+ * misma lógica (parseo, favicons, caché y limpieza de iconos).
+ *
+ * @param xmlData Contenido completo del archivo XBEL como texto
+ */
+export async function processXBELContent(xmlData: string) {
   try {
     logger.time('xbel-reload');
-    logger.info("Obteniendo datos de marcadores...");
-    const xmlData = await getBookmarksData();
 
     logger.info("Parseando XML a JSON...");
     const jsonData = await parseXMLToJSON(xmlData);
@@ -87,13 +104,17 @@ export async function reloadFromXBEL() {
     // Get final statistics
     const stats = FaviconService.getStats();
     logger.timeEnd('xbel-reload');
-    
+
+    const successRate = stats.attempted > 0
+      ? `${(stats.succeeded / stats.attempted * 100).toFixed(2)}%`
+      : 'N/A';
+
     logger.info("\n=== Resumen de Favicons ===");
     logger.info(`Total intentados: ${stats.attempted}`);
     logger.info(`Total encontrados: ${stats.succeeded}`);
     logger.info(`└─ Por favicon.ico: ${stats.icoSucceeded}`);
     logger.info(`└─ Por tag HTML: ${stats.htmlSucceeded}`);
-    logger.info(`Tasa de éxito: ${(stats.succeeded / stats.attempted * 100).toFixed(2)}%`);
+    logger.info(`Tasa de éxito: ${successRate}`);
     logger.info("========================\n");
     
     return {

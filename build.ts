@@ -83,7 +83,6 @@ async function build() {
     // Directorios opcionales
     console.log("\n📁 Copiando directorios...");
     const directories = [
-      { path: "logs", required: false },
       { path: "storage", required: false }
     ];
     

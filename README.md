@@ -9,7 +9,7 @@ Backend para la aplicación InicioApp que gestiona marcadores y sus favicons.
 - Sistema simple y rápido de favicons
 - Sistema de favoritos
 - API RESTful con Elysia y Bun
-- Sistema de logs personalizado
+- Sistema de logs por consola
 
 ## Endpoints
 
@@ -44,9 +44,58 @@ Ejemplo de respuesta:
 }
 ```
 
+### POST /xbel-upload
+Sube manualmente un archivo XBEL desde el navegador y actualiza los marcadores.
+Es la alternativa a `POST /xbel-reload` cuando el archivo no está disponible en
+Google Drive. Requiere autenticación (cabecera `Authorization: Bearer <token>`).
+
+Comparte toda la lógica con `/xbel-reload`: parsea el XBEL, descarga los favicons
+faltantes, respeta los favicons existentes y guarda la caché de marcadores.
+El archivo se valida antes de tocar la caché, así que un XBEL inválido no deja
+los marcadores a medias.
+
+#### Petición
+```javascript
+// Usando FormData
+const formData = new FormData();
+formData.append('file', xbelFile); // File object (.xbel o .xml)
+
+await axios.post(`${API_URL}/xbel-upload`, formData, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+```
+
+#### Respuesta Exitosa
+```json
+{
+  "status": "success",
+  "data": {
+    "message": "XBEL subido y marcadores actualizados correctamente",
+    "fileName": "bookmarks.xbel",
+    "stats": {
+      "totalUrls": 461,
+      "processed": 12,
+      "unchanged": 449,
+      "iconStats": {
+        "attempted": 12,
+        "succeeded": 9,
+        "icoSucceeded": 7,
+        "htmlSucceeded": 2
+      }
+    }
+  }
+}
+```
+
+#### Errores
+| Código | Motivo |
+| --- | --- |
+| 400 | No se envió archivo, o el XBEL está vacío / es XML inválido / no tiene raíz `<xbel>` |
+| 401 | Token no proporcionado o inválido |
+| 413 | El archivo supera el máximo de 10 MB |
+
 ### POST /favicons
 Actualiza el favicon de un marcador manualmente.
-
 #### Petición
 ```javascript
 // Usando FormData
@@ -94,7 +143,6 @@ La carpeta `inicioappbackend/` es el directorio de destino para la versión comp
   - `assets/`: Recursos estáticos
   - `controllers/`, `services/`, etc.: Módulos compilados
 - `storage/`: Carpeta para favicons
-- `logs/`: Archivos de log organizados por fecha
 
 ### Caché y Almacenamiento
 
@@ -126,22 +174,18 @@ La carpeta `inicioappbackend/` es el directorio de destino para la versión comp
 
 ## Sistema de Logs
 
-La aplicación incluye un sistema de logs organizado y fácil de mantener:
+La aplicación incluye un sistema de logs por consola eficiente y detallado:
 
 ### Características
 
-- Logs diarios (formato: YYYY-MM-DD.log)
-- Archivos separados para errores (YYYY-MM-DD-error.log)
 - Timestamps en formato ISO
-- Niveles de log (INFO, WARN, ERROR)
-- Salida simultánea a consola y archivo
-
-### Almacenamiento
-
-Los logs se guardan en:
-- `/logs/`: Directorio principal de logs
-  - `YYYY-MM-DD.log`: Logs generales del día
-  - `YYYY-MM-DD-error.log`: Errores del día
+- Niveles de log (INFO, WARN, ERROR, HTTP)
+- Logging automático de peticiones HTTP incluyendo:
+  - Método (GET, POST, etc.)
+  - Ruta
+  - Código de estado
+  - Tiempo de respuesta
+- Logs de errores con stack trace completo
 
 ## Sistema de Favicons
 
